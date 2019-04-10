@@ -15,89 +15,7 @@
   </component>
   <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="BwaOptions.java" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/main/java/com/github/flinkbwa/BwaOptions.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="54">
-              <caret line="3" column="37" lean-forward="false" selection-start-line="3" selection-start-column="34" selection-end-line="3" selection-end-column="37" />
-              <folding>
-                <element signature="e#2301#2328#0" expanded="true" />
-                <element signature="e#2910#2918#0" expanded="true" />
-                <element signature="e#16000#16001#0" expanded="true" />
-                <element signature="e#16030#16031#0" expanded="true" />
-                <element signature="e#16164#16165#0" expanded="true" />
-                <element signature="e#16202#16203#0" expanded="true" />
-                <element signature="e#16376#16377#0" expanded="true" />
-                <element signature="e#16412#16413#0" expanded="true" />
-                <element signature="e#16640#16641#0" expanded="true" />
-                <element signature="e#16690#16691#0" expanded="true" />
-                <element signature="e#16891#16892#0" expanded="true" />
-                <element signature="e#16926#16927#0" expanded="true" />
-                <element signature="e#17529#17530#0" expanded="true" />
-                <element signature="e#17564#17565#0" expanded="true" />
-                <element signature="e#18173#18174#0" expanded="true" />
-                <element signature="e#18210#18211#0" expanded="true" />
-                <element signature="e#18821#18822#0" expanded="true" />
-                <element signature="e#18855#18856#0" expanded="true" />
-                <element signature="e#19081#19082#0" expanded="true" />
-                <element signature="e#19127#19128#0" expanded="true" />
-                <element signature="e#19322#19323#0" expanded="true" />
-                <element signature="e#19356#19357#0" expanded="true" />
-                <element signature="e#19582#19583#0" expanded="true" />
-                <element signature="e#19628#19629#0" expanded="true" />
-                <element signature="e#19778#19779#0" expanded="true" />
-                <element signature="e#19810#19811#0" expanded="true" />
-                <element signature="e#19995#19996#0" expanded="true" />
-                <element signature="e#20037#20038#0" expanded="true" />
-                <element signature="e#20213#20214#0" expanded="true" />
-                <element signature="e#20245#20246#0" expanded="true" />
-                <element signature="e#20450#20451#0" expanded="true" />
-                <element signature="e#20492#20493#0" expanded="true" />
-                <element signature="e#20680#20681#0" expanded="true" />
-                <element signature="e#20713#20714#0" expanded="true" />
-                <element signature="e#20951#20952#0" expanded="true" />
-                <element signature="e#20995#20996#0" expanded="true" />
-                <element signature="e#21181#21182#0" expanded="true" />
-                <element signature="e#21219#21220#0" expanded="true" />
-                <element signature="e#21440#21441#0" expanded="true" />
-                <element signature="e#21494#21495#0" expanded="true" />
-                <element signature="e#21673#21674#0" expanded="true" />
-                <element signature="e#21706#21707#0" expanded="true" />
-                <element signature="e#21910#21911#0" expanded="true" />
-                <element signature="e#21954#21955#0" expanded="true" />
-                <element signature="e#22184#22185#0" expanded="true" />
-                <element signature="e#22221#22222#0" expanded="true" />
-                <element signature="e#22514#22515#0" expanded="true" />
-                <element signature="e#22566#22567#0" expanded="true" />
-                <element signature="e#22798#22799#0" expanded="true" />
-                <element signature="e#22839#22840#0" expanded="true" />
-                <element signature="e#23146#23147#0" expanded="true" />
-                <element signature="e#23206#23207#0" expanded="true" />
-                <element signature="e#23430#23431#0" expanded="true" />
-                <element signature="e#23468#23469#0" expanded="true" />
-                <element signature="e#23676#23677#0" expanded="true" />
-                <element signature="e#23725#23726#0" expanded="true" />
-                <element signature="e#23916#23917#0" expanded="true" />
-                <element signature="e#23951#23952#0" expanded="true" />
-                <element signature="e#24136#24137#0" expanded="true" />
-                <element signature="e#24173#24174#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="pom.xml" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/pom.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="272">
-              <caret line="41" column="0" lean-forward="false" selection-start-line="41" selection-start-column="0" selection-end-line="41" selection-end-column="0" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300" />
   </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
@@ -109,6 +27,7 @@
   <component name="FindInProjectRecents">
     <findStrings>
       <find>java</find>
+      <find>bwaArgs</find>
     </findStrings>
   </component>
   <component name="GradleLocalSettings">
@@ -125,6 +44,7 @@
         <option value="$PROJECT_DIR$/src/main/java/com/github/flinkbwa/BwaJni.java" />
         <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/src/main/java/com/github/flinkbwa/BwaOptions.java" />
+        <option value="$PROJECT_DIR$/src/main/java/com/github/flinkbwa/Bwa.java" />
       </list>
     </option>
   </component>
@@ -138,6 +58,28 @@
     <option name="y" value="24" />
     <option name="width" value="1366" />
     <option name="height" value="744" />
+  </component>
+  <component name="ProjectInspectionProfilesVisibleTreeState">
+    <entry key="Project Default">
+      <profile-state>
+        <expanded-state>
+          <State>
+            <id />
+          </State>
+          <State>
+            <id>Java</id>
+          </State>
+          <State>
+            <id>Java language level migration aidsJava</id>
+          </State>
+        </expanded-state>
+        <selected-state>
+          <State>
+            <id>Since15</id>
+          </State>
+        </selected-state>
+      </profile-state>
+    </entry>
   </component>
   <component name="ProjectView">
     <navigator currentView="ProjectPane" proportions="" version="1">
@@ -712,16 +654,16 @@
       <option name="presentableId" value="Default" />
       <updated>1554830364623</updated>
       <workItem from="1554830366889" duration="1561000" />
-      <workItem from="1554911158959" duration="622000" />
+      <workItem from="1554911158959" duration="1032000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="2183000" />
+    <option name="totallyTimeSpent" value="2593000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="24" width="1366" height="744" extended-state="6" />
-    <editor active="true" />
+    <editor active="false" />
     <layout>
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -737,7 +679,7 @@
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Capture Tool" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18667643" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Project" active="true" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.18667643" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -830,19 +772,12 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/pom.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="272">
-          <caret line="41" column="0" lean-forward="false" selection-start-line="41" selection-start-column="0" selection-end-line="41" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/github/flinkbwa/BwaOptions.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="54">
-          <caret line="3" column="37" lean-forward="false" selection-start-line="3" selection-start-column="34" selection-end-line="3" selection-end-column="37" />
+        <state relative-caret-position="288">
+          <caret line="16" column="32" lean-forward="true" selection-start-line="16" selection-start-column="32" selection-end-line="16" selection-end-column="32" />
           <folding>
+            <element signature="imports" expanded="true" />
             <element signature="e#2301#2328#0" expanded="true" />
             <element signature="e#2910#2918#0" expanded="true" />
             <element signature="e#16000#16001#0" expanded="true" />
@@ -904,6 +839,69 @@
             <element signature="e#24136#24137#0" expanded="true" />
             <element signature="e#24173#24174#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/github/flinkbwa/Bwa.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="263">
+          <caret line="388" column="60" lean-forward="false" selection-start-line="388" selection-start-column="60" selection-end-line="388" selection-end-column="60" />
+          <folding>
+            <element signature="imports" expanded="true" />
+            <element signature="e#2138#2139#0" expanded="true" />
+            <element signature="e#2171#2172#0" expanded="true" />
+            <element signature="e#2366#2367#0" expanded="true" />
+            <element signature="e#2410#2411#0" expanded="true" />
+            <element signature="e#2577#2578#0" expanded="true" />
+            <element signature="e#2609#2610#0" expanded="true" />
+            <element signature="e#2799#2800#0" expanded="true" />
+            <element signature="e#2841#2842#0" expanded="true" />
+            <element signature="e#2994#2995#0" expanded="true" />
+            <element signature="e#3027#3028#0" expanded="true" />
+            <element signature="e#3205#3206#0" expanded="true" />
+            <element signature="e#3249#3250#0" expanded="true" />
+            <element signature="e#3479#3480#0" expanded="true" />
+            <element signature="e#3514#3515#0" expanded="true" />
+            <element signature="e#3773#3774#0" expanded="true" />
+            <element signature="e#3821#3822#0" expanded="true" />
+            <element signature="e#4050#4051#0" expanded="true" />
+            <element signature="e#4085#4086#0" expanded="true" />
+            <element signature="e#4344#4345#0" expanded="true" />
+            <element signature="e#4392#4393#0" expanded="true" />
+            <element signature="e#4627#4628#0" expanded="true" />
+            <element signature="e#4664#4665#0" expanded="true" />
+            <element signature="e#4933#4934#0" expanded="true" />
+            <element signature="e#4985#4986#0" expanded="true" />
+            <element signature="e#5204#5205#0" expanded="true" />
+            <element signature="e#5238#5239#0" expanded="true" />
+            <element signature="e#5496#5497#0" expanded="true" />
+            <element signature="e#5542#5543#0" expanded="true" />
+            <element signature="e#5761#5762#0" expanded="true" />
+            <element signature="e#5795#5796#0" expanded="true" />
+            <element signature="e#6053#6054#0" expanded="true" />
+            <element signature="e#6099#6100#0" expanded="true" />
+            <element signature="e#6241#6242#0" expanded="true" />
+            <element signature="e#6273#6274#0" expanded="true" />
+            <element signature="e#6458#6459#0" expanded="true" />
+            <element signature="e#6500#6501#0" expanded="true" />
+            <element signature="e#6658#6659#0" expanded="true" />
+            <element signature="e#6694#6695#0" expanded="true" />
+            <element signature="e#6912#6913#0" expanded="true" />
+            <element signature="e#6962#6963#0" expanded="true" />
+            <element signature="e#7097#7098#0" expanded="true" />
+            <element signature="e#7132#7133#0" expanded="true" />
+            <element signature="e#7290#7291#0" expanded="true" />
+            <element signature="e#7328#7329#0" expanded="true" />
+            <element signature="e#7651#7659#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="272">
+          <caret line="41" column="0" lean-forward="false" selection-start-line="41" selection-start-column="0" selection-end-line="41" selection-end-column="0" />
+          <folding />
         </state>
       </provider>
     </entry>

@@ -45,6 +45,7 @@
         <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/src/main/java/com/github/flinkbwa/BwaOptions.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/github/flinkbwa/Bwa.java" />
+        <option value="$PROJECT_DIR$/src/main/java/com/github/flinkbwa/BwaSeq.java" />
       </list>
     </option>
   </component>
@@ -654,12 +655,12 @@
       <option name="presentableId" value="Default" />
       <updated>1554830364623</updated>
       <workItem from="1554830366889" duration="1561000" />
-      <workItem from="1554911158959" duration="1032000" />
+      <workItem from="1554911158959" duration="1126000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="2593000" />
+    <option name="totallyTimeSpent" value="2687000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="24" width="1366" height="744" extended-state="6" />
@@ -902,6 +903,17 @@
         <state relative-caret-position="272">
           <caret line="41" column="0" lean-forward="false" selection-start-line="41" selection-start-column="0" selection-end-line="41" selection-end-column="0" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/github/flinkbwa/BwaSeq.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="28" lean-forward="false" selection-start-line="0" selection-start-column="28" selection-end-line="0" selection-end-column="28" />
+          <folding>
+            <element signature="e#263#264#0" expanded="true" />
+            <element signature="e#299#300#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

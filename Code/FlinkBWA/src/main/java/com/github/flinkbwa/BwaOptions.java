@@ -29,15 +29,15 @@ public class BwaOptions {
     private String tmpPath = "";
     private boolean useReducer = false;
     private String correctUse =
-            "spark-submit --class com.github.sparkbwa.SparkBWA SparkBWA-0.2.jar";// [SparkBWA Options] Input.fastq [Input2.fastq] Output\n";
+            "flink run -c com.github.flinkbwa.FlinkBWA FlinkBWA-0.1.jar";// [FlinkBWA Options] Input.fastq [Input2.fastq] Output\n";
     // Header to show when the program is not launched correctly
-    private String header = "\t<FASTQ file 1> [FASTQ file 2] <SAM file output>\n\nSparkBWA performs genomic alignment using bwa in a Hadoop/YARN cluster\nAvailable SparkBWA options are:\n";
-    //+ "\n\n----SPARK SHELL OPTIONS----\n\nTo set the Input.fastq - setInputPath(string)\n"
+    private String header = "\t<FASTQ file 1> [FASTQ file 2] <SAM file output>\n\nFlinkBWA performs genomic alignment using bwa in a Hadoop/YARN cluster\nAvailable SparkBWA options are:\n";
+    //+ "\n\n----FLINK SHELL OPTIONS----\n\nTo set the Input.fastq - setInputPath(string)\n"
     //+ "To set the Input2.fastq - setInputPath2(string)\n"
     //+ "To set the Output - setOutputPath(string)\n"
-    //+ "The available SparkBWA options are: \n\n";
+    //+ "The available FlinkBWA options are: \n\n";
 
-    private String headerAlt = "spark-submit --class com.github.sparkbwa.SparkBWA SparkBWA-0.2.jar\n" +
+    private String headerAlt = "flink run -c com.github.flinkbwa.FlinkBWA FlinkBWA-0.1.jar\n" +
             "       [-a | -b | -m]  [-f | -k] [-h] [-i <Index prefix>]   [-n <Number of\n" +
             "       partitions>] [-p | -s] [-r]  [-w <\"BWA arguments\">] [-t <\"tmp path\">]\n" +
             "       <FASTQ file 1> [FASTQ file 2] <SAM file output>";
@@ -68,7 +68,7 @@ public class BwaOptions {
 
         Iterator it = optionsTable.entrySet().iterator();
 
-        System.out.println("SparkBWA performs genomic alignment using bwa in a Hadoop/YARN cluster");
+        System.out.println("FlinkBWA performs genomic alignment using bwa in a Hadoop/YARN cluster");
         System.out.println(" usage: " + this.headerAlt);
 
         while (it.hasNext()) {
@@ -84,7 +84,7 @@ public class BwaOptions {
             } else if (groupName.contains("reads")) {
                 System.out.println("Input FASTQ reads options: ");
             } else if (groupName.contains("Number of partitions")) {
-                System.out.println("Spark options: ");
+                System.out.println("Flink options: ");
             } else if (groupName.contains("Prefix for the index")) {
                 System.out.println("Index options: ");
             } else if (groupName.contains("directly to BWA")) {
@@ -96,7 +96,6 @@ public class BwaOptions {
             } else {
                 System.out.println(groupName + "options: ");
             }
-
 
             String newOptionOutput;
             ArrayList<Option> availableOptions = ((ArrayList<Option>) pair.getValue());
@@ -113,9 +112,7 @@ public class BwaOptions {
                     newOptionOutput = newOptionOutput + " ";
                 }
 
-                //newOptionOutput = newOptionOutput + "\t\t\t\t" + currentOption.getDescription();
                 newOptionOutput = newOptionOutput + currentOption.getDescription();
-
                 System.out.println(newOptionOutput);
             }
             System.out.println("");
@@ -131,7 +128,7 @@ public class BwaOptions {
     }
 
     /**
-     * Constructor to use from within SparkBWA from the Linux console
+     * Constructor to use from within FlinkBWA from the Linux console
      *
      * @param args The arguments that the user is going to provide from the Linux console
      */
@@ -216,7 +213,7 @@ public class BwaOptions {
             if (cmd.hasOption('f') || cmd.hasOption("hdfs")) {
                 this.sortFastqReadsHdfs = true;
                 this.sortFastqReads = false;
-            } else if (cmd.hasOption('k') || cmd.hasOption("spark")) {
+            } else if (cmd.hasOption('k') || cmd.hasOption("flink")) {
                 this.sortFastqReadsHdfs = false;
                 this.sortFastqReads = true;
             } else {
@@ -280,7 +277,7 @@ public class BwaOptions {
     }
 
     /**
-     * Function to init the SparkBWA available options
+     * Function to init the FlinkBWA available options
      *
      * @return An Options object containing the available options
      */
@@ -336,14 +333,14 @@ public class BwaOptions {
         privateOptions.addOptionGroup(indexGroup);
 
         //Partition number
-        OptionGroup sparkGroup = new OptionGroup();
+        OptionGroup flinkGroup = new OptionGroup();
         Option partitions = new Option("n", "partitions", true,
                 "Number of partitions to divide input - setPartitionNumber(int)");
         partitions.setArgName("Number of partitions");
 
-        sparkGroup.addOption(partitions);
+        flinkGroup.addOption(partitions);
 
-        privateOptions.addOptionGroup(sparkGroup);
+        privateOptions.addOptionGroup(flinkGroup);
 
 
         OptionGroup reducerGroup = new OptionGroup();
@@ -362,8 +359,10 @@ public class BwaOptions {
         Option hdfs = new Option("f", "hdfs", false, "The HDFS is used to perform the input FASTQ reads sort");
         sorting.addOption(hdfs);
 
+        /*
         Option spark = new Option("k", "spark", false, "the Spark engine is used to perform the input FASTQ reads sort");
         sorting.addOption(spark);
+        */
 
         privateOptions.addOptionGroup(sorting);
 

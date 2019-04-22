@@ -2,19 +2,18 @@ package com.github.flinkbwa;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.flink.api.common.JobExecutionResult;
-import org.apache.flink.api.java.ExecutionEnvironment;
 
-import org.apache.flink.api.java.utils.ParameterTool;
-import org.apache.flink.runtime.execution.Environment;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.spark.SparkContext;
+
+import org.apache.flink.api.java.ExecutionEnvironment;
+//import org.apache.spark.SparkContext;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  * Created by silvia on 10/04/19.
@@ -35,11 +34,10 @@ public class BwaAlignmentBase {
      * @brief This constructor creates a BwaAlignment object to process in each one of the mappers
      */
     public BwaAlignmentBase(ExecutionEnvironment environment, Bwa bwaInterpreter) {
-        environment = ExecutionEnvironment.getExecutionEnvironment();
-        this.appId = environment.getIdString();
-        //this.appId = context.applicationId();
-        //this.appName = context.appName();
-        //TODO: appname ? tmpDir ? in Flink
+        this.appId = environment.getId().toString();
+        this.appName = "FlinkBWA";
+        //TODO: tmp dir???
+        this.tmpDir = "/tmp";
         //this.tmpDir = context.getLocalProperty("spark.local.dir");
         this.bwaInterpreter = bwaInterpreter;
 
@@ -118,7 +116,7 @@ public class BwaAlignmentBase {
      * @param outputSamFileName The output where the final results will be stored
      * @return An ArrayList containing all the file locations
      */
-    public ArrayList<String> copyResults(String outputSamFileName) {
+    public Iterator<String> copyResults(String outputSamFileName) {
         ArrayList<String> returnedValues = new ArrayList<String>();
         String outputDir = this.bwaInterpreter.getOutputHdfsDir();
 
@@ -148,26 +146,26 @@ public class BwaAlignmentBase {
 
         returnedValues.add(outputDir + "/" + outputSamFileName);
 
-        return returnedValues;
+        return returnedValues.iterator();
     }
 
     /**
      * @param readBatchID Identification for the sam file
      * @return A String for the sam file name
      */
-    public String getOutputSamFilename(Integer readBatchID) {
+    public String getOutputSamFilename(Long readBatchID) {
         return this.appName + "-" + this.appId + "-" + readBatchID + ".sam";
     }
 
     /**
-     * @param readBatchID    Identification for the sam file
+     * @param readStreamID    Identification for the sam file
      * @param fastqFileName1 First of the FASTQ files
      * @param fastqFileName2 Second of the FASTQ files
      * @return
      */
-    public ArrayList<String> runAlignmentProcess(Integer readBatchID, String fastqFileName1, String fastqFileName2) {
+    public Iterator<String> runAlignmentProcess(Long readStreamID, String fastqFileName1, String fastqFileName2) {
         //The output filename (without the tmp directory)
-        String outputSamFileName = this.getOutputSamFilename(readBatchID);
+        String outputSamFileName = this.getOutputSamFilename(readStreamID);
         this.alignReads(outputSamFileName, fastqFileName1, fastqFileName2);
 
         // Copy the result to HDFS

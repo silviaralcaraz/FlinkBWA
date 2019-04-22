@@ -5,14 +5,14 @@ package com.github.flinkbwa;
  */
 public class FlinkBWA {
     /**
-     *
      * @param args Arguments from command line
      */
     public static void main(String[] args) {
 
-        // Creation of BwaInterpreter
-        BwaInterpreter newBwa = new BwaInterpreter(args);
+        // Creation of BWAInterpreter
+        BWAInterpreter newBwa = new BWAInterpreter(args);
 
-        //Run of BwaInterpreter
+        //Run of BWAInterpreter
         newBwa.runBwa();
+    }
 }

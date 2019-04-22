@@ -25,34 +25,34 @@ import java.io.InputStreamReader;
 import java.util.List;
 
 /**
- * BwaInterpreter class
+ * BWAInterpreter class
  *
  * @author Jose M. Abuin
  * @brief This class communicates Spark with BWA
  */
-public class BwaInterpreter {
+public class BWAInterpreter {
 
-    private static final Log 				LOG = LogFactory.getLog(BwaInterpreter.class); // The LOG
-    private SparkConf 						sparkConf; 								// The Spark Configuration to use
-    private JavaSparkContext 				ctx;									// The Java Spark Context
-    private Configuration 					conf;									// Global Configuration
-    private JavaRDD<Tuple2<String, String>> dataRDD;
-    private long 							totalInputLength;
-    private long 							blocksize;
-    private BwaOptions 						options;								// Options for BWA
-    private String 							inputTmpFileName;
+    private static final Log LOG = LogFactory.getLog(BWAInterpreter.class); // The LOG
+    //private SparkConf 						sparkConf; 								// The Spark Configuration to use
+    //private JavaSparkContext 				ctx;									// The Java Spark Context
+    private Configuration conf;                                    // Global Configuration
+    //private JavaRDD<Tuple2<String, String>> dataRDD;
+    private long totalInputLength;
+    //private long blocksize;
+    private BwaOptions options;                                // Options for BWA
+    //private String inputTmpFileName;
 
 
     /**
-     * Constructor to build the BwaInterpreter object from the Spark shell When creating a
-     * BwaInterpreter object from the Spark shell, the BwaOptions and the Spark Context objects need
+     * Constructor to build the BWAInterpreter object from the Spark shell When creating a
+     * BWAInterpreter object from the Spark shell, the BwaOptions and the Spark Context objects need
      * to be passed as argument.
      *
      * @param opcions The BwaOptions object initialized with the user options
      * @param context The Spark Context from the Spark Shell. Usually "sc"
-     * @return The BwaInterpreter object with its options initialized.
+     * @return The BWAInterpreter object with its options initialized.
      */
-    public BwaInterpreter(BwaOptions optionsFromShell, SparkContext context) {
+    public BWAInterpreter(BwaOptions optionsFromShell, SparkContext context) {
 
         this.options = optionsFromShell;
         this.ctx = new JavaSparkContext(context);
@@ -60,12 +60,12 @@ public class BwaInterpreter {
     }
 
     /**
-     * Constructor to build the BwaInterpreter object from within SparkBWA
+     * Constructor to build the BWAInterpreter object from within SparkBWA
      *
      * @param args Arguments got from Linux console when launching SparkBWA with Spark
-     * @return The BwaInterpreter object with its options initialized.
+     * @return The BWAInterpreter object with its options initialized.
      */
-    public BwaInterpreter(String[] args) {
+    public BWAInterpreter(String[] args) {
 
         this.options = new BwaOptions(args);
         this.initInterpreter();
@@ -112,15 +112,13 @@ public class BwaInterpreter {
             // Directory creation
             if (!fs.exists(outputDir)) {
                 fs.mkdirs(outputDir);
-            }
-            else {
+            } else {
                 fs.delete(outputDir, true);
                 fs.mkdirs(outputDir);
             }
 
             fs.close();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             LOG.error(e.toString());
             e.printStackTrace();
         }
@@ -128,7 +126,8 @@ public class BwaInterpreter {
 
     /**
      * Function to load a FASTQ file from HDFS into a JavaPairRDD<Long, String>
-     * @param ctx The JavaSparkContext to use
+     *
+     * @param ctx         The JavaSparkContext to use
      * @param pathToFastq The path to the FASTQ file
      * @return A JavaPairRDD containing <Long Read ID, String Read>
      */
@@ -144,6 +143,7 @@ public class BwaInterpreter {
 
     /**
      * Method to perform and handle the single reads sorting
+     *
      * @return A RDD containing the strings with the sorted reads from the FASTQ file
      */
     private JavaRDD<String> handleSingleReadsSorting() {
@@ -151,7 +151,7 @@ public class BwaInterpreter {
 
         long startTime = System.nanoTime();
 
-        LOG.info("["+this.getClass().getName()+"] :: Not sorting in HDFS. Timing: " + startTime);
+        LOG.info("[" + this.getClass().getName() + "] :: Not sorting in HDFS. Timing: " + startTime);
 
         // Read the FASTQ file from HDFS using the FastqInputFormat class
         JavaPairRDD<Long, String> singleReadsKeyVal = loadFastq(this.ctx, this.options.getInputPath());
@@ -161,37 +161,36 @@ public class BwaInterpreter {
             // First, the join operation is performed. After that,
             // a sortByKey. The resulting values are obtained
             readsRDD = singleReadsKeyVal.sortByKey().values();
-            LOG.info("["+this.getClass().getName()+"] :: Sorting in memory without partitioning");
+            LOG.info("[" + this.getClass().getName() + "] :: Sorting in memory without partitioning");
         }
 
         // Sort in memory with partitioning
         else if ((options.getPartitionNumber() != 0) && (options.isSortFastqReads())) {
             singleReadsKeyVal = singleReadsKeyVal.repartition(options.getPartitionNumber());
             readsRDD = singleReadsKeyVal.sortByKey().values();//.persist(StorageLevel.MEMORY_ONLY());
-            LOG.info("["+this.getClass().getName()+"] :: Repartition with sort");
+            LOG.info("[" + this.getClass().getName() + "] :: Repartition with sort");
         }
 
         // No Sort with no partitioning
         else if ((options.getPartitionNumber() == 0) && (!options.isSortFastqReads())) {
-            LOG.info("["+this.getClass().getName()+"] :: No sort and no partitioning");
+            LOG.info("[" + this.getClass().getName() + "] :: No sort and no partitioning");
             readsRDD = singleReadsKeyVal.values();
         }
 
         // No Sort with partitioning
         else {
-            LOG.info("["+this.getClass().getName()+"] :: No sort with partitioning");
+            LOG.info("[" + this.getClass().getName() + "] :: No sort with partitioning");
             int numPartitions = singleReadsKeyVal.partitions().size();
 
 			/*
-			 * As in previous cases, the coalesce operation is not suitable
+             * As in previous cases, the coalesce operation is not suitable
 			 * if we want to achieve the maximum speedup, so, repartition
 			 * is used.
 			 */
             if ((numPartitions) <= options.getPartitionNumber()) {
-                LOG.info("["+this.getClass().getName()+"] :: Repartition with no sort");
-            }
-            else {
-                LOG.info("["+this.getClass().getName()+"] :: Repartition(Coalesce) with no sort");
+                LOG.info("[" + this.getClass().getName() + "] :: Repartition with no sort");
+            } else {
+                LOG.info("[" + this.getClass().getName() + "] :: Repartition(Coalesce) with no sort");
             }
 
             readsRDD = singleReadsKeyVal
@@ -202,8 +201,8 @@ public class BwaInterpreter {
         }
 
         long endTime = System.nanoTime();
-        LOG.info("["+this.getClass().getName()+"] :: End of sorting. Timing: " + endTime);
-        LOG.info("["+this.getClass().getName()+"] :: Total time: " + (endTime - startTime) / 1e9 / 60.0 + " minutes");
+        LOG.info("[" + this.getClass().getName() + "] :: End of sorting. Timing: " + endTime);
+        LOG.info("[" + this.getClass().getName() + "] :: Total time: " + (endTime - startTime) / 1e9 / 60.0 + " minutes");
 
         //readsRDD.persist(StorageLevel.MEMORY_ONLY());
 
@@ -212,6 +211,7 @@ public class BwaInterpreter {
 
     /**
      * Method to perform and handle the paired reads sorting
+     *
      * @return A JavaRDD containing grouped reads from the paired FASTQ files
      */
     private JavaRDD<Tuple2<String, String>> handlePairedReadsSorting() {
@@ -219,7 +219,7 @@ public class BwaInterpreter {
 
         long startTime = System.nanoTime();
 
-        LOG.info("["+this.getClass().getName()+"] ::Not sorting in HDFS. Timing: " + startTime);
+        LOG.info("[" + this.getClass().getName() + "] ::Not sorting in HDFS. Timing: " + startTime);
 
         // Read the two FASTQ files from HDFS using the loadFastq method. After that, a Spark join operation is performed
         JavaPairRDD<Long, String> datasetTmp1 = loadFastq(this.ctx, options.getInputPath());
@@ -232,24 +232,24 @@ public class BwaInterpreter {
         // Sort in memory with no partitioning
         if ((options.getPartitionNumber() == 0) && (options.isSortFastqReads())) {
             readsRDD = pairedReadsRDD.sortByKey().values();
-            LOG.info("["+this.getClass().getName()+"] :: Sorting in memory without partitioning");
+            LOG.info("[" + this.getClass().getName() + "] :: Sorting in memory without partitioning");
         }
 
         // Sort in memory with partitioning
         else if ((options.getPartitionNumber() != 0) && (options.isSortFastqReads())) {
             pairedReadsRDD = pairedReadsRDD.repartition(options.getPartitionNumber());
             readsRDD = pairedReadsRDD.sortByKey().values();//.persist(StorageLevel.MEMORY_ONLY());
-            LOG.info("["+this.getClass().getName()+"] :: Repartition with sort");
+            LOG.info("[" + this.getClass().getName() + "] :: Repartition with sort");
         }
 
         // No Sort with no partitioning
         else if ((options.getPartitionNumber() == 0) && (!options.isSortFastqReads())) {
-            LOG.info("["+this.getClass().getName()+"] :: No sort and no partitioning");
+            LOG.info("[" + this.getClass().getName() + "] :: No sort and no partitioning");
         }
 
         // No Sort with partitioning
         else {
-            LOG.info("["+this.getClass().getName()+"] :: No sort with partitioning");
+            LOG.info("[" + this.getClass().getName() + "] :: No sort with partitioning");
             int numPartitions = pairedReadsRDD.partitions().size();
 
 			/*
@@ -258,10 +258,9 @@ public class BwaInterpreter {
 			 * is used.
 			 */
             if ((numPartitions) <= options.getPartitionNumber()) {
-                LOG.info("["+this.getClass().getName()+"] :: Repartition with no sort");
-            }
-            else {
-                LOG.info("["+this.getClass().getName()+"] :: Repartition(Coalesce) with no sort");
+                LOG.info("[" + this.getClass().getName() + "] :: Repartition with no sort");
+            } else {
+                LOG.info("[" + this.getClass().getName() + "] :: Repartition(Coalesce) with no sort");
             }
 
             readsRDD = pairedReadsRDD
@@ -272,8 +271,8 @@ public class BwaInterpreter {
 
         long endTime = System.nanoTime();
 
-        LOG.info("["+this.getClass().getName()+"] :: End of sorting. Timing: " + endTime);
-        LOG.info("["+this.getClass().getName()+"] :: Total time: " + (endTime - startTime) / 1e9 / 60.0 + " minutes");
+        LOG.info("[" + this.getClass().getName() + "] :: End of sorting. Timing: " + endTime);
+        LOG.info("[" + this.getClass().getName() + "] :: Total time: " + (endTime - startTime) / 1e9 / 60.0 + " minutes");
         //readsRDD.persist(StorageLevel.MEMORY_ONLY());
 
         return readsRDD;
@@ -281,7 +280,8 @@ public class BwaInterpreter {
 
     /**
      * Procedure to perform the alignment using paired reads
-     * @param bwa The Bwa object to use
+     *
+     * @param bwa      The Bwa object to use
      * @param readsRDD The RDD containing the paired reads
      * @return A list of strings containing the resulting sam files where the output alignments are stored
      */
@@ -293,8 +293,7 @@ public class BwaInterpreter {
     }
 
     /**
-     *
-     * @param bwa The Bwa object to use
+     * @param bwa      The Bwa object to use
      * @param readsRDD The RDD containing the paired reads
      * @return A list of strings containing the resulting sam files where the output alignments are stored
      */
@@ -309,24 +308,23 @@ public class BwaInterpreter {
      * Runs BWA with the specified options
      *
      * @brief This function runs BWA with the input data selected and with the options also selected
-     *     by the user.
+     * by the user.
      */
     public void runBwa() {
-        LOG.info("["+this.getClass().getName()+"] :: Starting BWA");
+        LOG.info("[" + this.getClass().getName() + "] :: Starting BWA");
         Bwa bwa = new Bwa(this.options);
 
         List<String> returnedValues;
         if (bwa.isPairedReads()) {
             JavaRDD<Tuple2<String, String>> readsRDD = handlePairedReadsSorting();
             returnedValues = MapPairedBwa(bwa, readsRDD);
-        }
-        else {
+        } else {
             JavaRDD<String> readsRDD = handleSingleReadsSorting();
             returnedValues = MapSingleBwa(bwa, readsRDD);
         }
 
         // In the case of use a reducer the final output has to be stored in just one file
-        if(this.options.getUseReducer()) {
+        if (this.options.getUseReducer()) {
             try {
                 FileSystem fs = FileSystem.get(this.conf);
 
@@ -385,7 +383,7 @@ public class BwaInterpreter {
     }
 
     /**
-     * Procedure to init the BwaInterpreter configuration parameters
+     * Procedure to init the BWAInterpreter configuration parameters
      */
     public void initInterpreter() {
         //If ctx is null, this procedure is being called from the Linux console with Spark
@@ -396,11 +394,9 @@ public class BwaInterpreter {
             //Check for the options to perform the sort reads
             if (options.isSortFastqReads()) {
                 sorting = "SortSpark";
-            }
-            else if (options.isSortFastqReadsHdfs()) {
+            } else if (options.isSortFastqReadsHdfs()) {
                 sorting = "SortHDFS";
-            }
-            else {
+            } else {
                 sorting = "NoSort";
             }
 

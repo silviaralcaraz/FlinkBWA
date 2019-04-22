@@ -19,10 +19,12 @@ package com.github.flinkbwa;
 //import org.apache.hadoop.io.Text;
 //import org.apache.spark.SparkContext;
 //import org.apache.spark.api.java.function.Function2;
+import org.apache.flink.api.common.functions.MapPartitionFunction;
+import org.apache.flink.api.java.ExecutionEnvironment;
+import org.apache.flink.util.Collector;
 import scala.Tuple2;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
@@ -30,15 +32,86 @@ import java.util.Iterator;
  *
  * @author José M. Abuín
  */
-public class BwaPairedAlignment extends BwaAlignmentBase implements Function2<Integer, Iterator<Tuple2<String, String>>, Iterator<String>> {
+public class BwaPairedAlignment extends BwaAlignmentBase implements MapPartitionFunction<Tuple2<String, String>, Iterator<String>> {
 
     /**
      * Constructor
-     * @param context The Spark context
+     * @param environment The Spark context
      * @param bwaInterpreter The BWA interpreter object to use
      */
-    public BwaPairedAlignment(SparkContext context, Bwa bwaInterpreter) {
-        super(context, bwaInterpreter);
+    public BwaPairedAlignment(ExecutionEnvironment environment, Bwa bwaInterpreter) {
+        super(environment, bwaInterpreter);
+    }
+
+    public void mapPartition(Iterable<Tuple2<String, String>> iterable, Collector<Iterator<String>> collector) throws Exception {
+        // STEP 1: Input fastq reads tmp file creation
+        LOG.info("["+this.getClass().getName()+"] :: Tmp dir: " + this.tmpDir);
+
+        String fastqFileName1;
+        String fastqFileName2;
+        Long StreamID = System.currentTimeMillis();
+
+        if(this.tmpDir.lastIndexOf("/") == this.tmpDir.length()-1) {
+            fastqFileName1 = this.tmpDir + this.appId + "-Dataset" + StreamID + "_1";
+            fastqFileName2 = this.tmpDir + this.appId + "-Dataset" + StreamID + "_2";
+        }
+        else {
+            fastqFileName1 = this.tmpDir + "/" + this.appId + "-Dataset" + StreamID + "_1";
+            fastqFileName2 = this.tmpDir + "/" + this.appId + "-Dataset" + StreamID + "_2";
+        }
+
+        LOG.info("["+this.getClass().getName()+"] :: Writing file: " + fastqFileName1);
+        LOG.info("["+this.getClass().getName()+"] :: Writing file: " + fastqFileName2);
+
+        File FastqFile1 = new File(fastqFileName1);
+        File FastqFile2 = new File(fastqFileName2);
+
+        FileOutputStream fos1;
+        FileOutputStream fos2;
+
+        BufferedWriter bw1;
+        BufferedWriter bw2;
+
+        //We write the data contained in this split into the two tmp files
+        try {
+            fos1 = new FileOutputStream(FastqFile1);
+            fos2 = new FileOutputStream(FastqFile2);
+
+            bw1 = new BufferedWriter(new OutputStreamWriter(fos1));
+            bw2 = new BufferedWriter(new OutputStreamWriter(fos2));
+
+            Iterator<Tuple2<String, String>> data = iterable.iterator();
+            Tuple2<String, String> newFastqRead;
+
+            while (data.hasNext()) {
+                newFastqRead = data.next();
+
+                bw1.write(newFastqRead._1);
+                bw1.newLine();
+
+                bw2.write(newFastqRead._2);
+                bw2.newLine();
+            }
+
+            bw1.close();
+            bw2.close();
+
+            data = null;
+
+            // This is where the actual local alignment takes place
+            collector.collect(this.runAlignmentProcess(StreamID, fastqFileName1, fastqFileName2));
+
+            // Delete temporary files, as they have now been copied to the output directory
+            LOG.info("["+this.getClass().getName()+"] :: Deleting file: " + fastqFileName1);
+            FastqFile1.delete();
+
+            LOG.info("["+this.getClass().getName()+"] :: Deleting file: " + fastqFileName2);
+            FastqFile2.delete();
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            LOG.error("["+this.getClass().getName()+"] "+e.toString());
+        }
     }
 
     /**
@@ -49,6 +122,7 @@ public class BwaPairedAlignment extends BwaAlignmentBase implements Function2<In
      * @return An iterator containing the sam file name generated
      * @throws Exception
      */
+    /*
     public Iterator<String> call(Integer arg0, Iterator<Tuple2<String, String>> arg1) throws Exception {
 
         // STEP 1: Input fastq reads tmp file creation
@@ -123,4 +197,5 @@ public class BwaPairedAlignment extends BwaAlignmentBase implements Function2<In
 
         return returnedValues.iterator();
     }
+    */
 }

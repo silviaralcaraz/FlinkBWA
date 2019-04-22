@@ -31,7 +31,7 @@ public class BwaOptions {
     private String correctUse =
             "flink run -c com.github.flinkbwa.FlinkBWA FlinkBWA-0.1.jar";// [FlinkBWA Options] Input.fastq [Input2.fastq] Output\n";
     // Header to show when the program is not launched correctly
-    private String header = "\t<FASTQ file 1> [FASTQ file 2] <SAM file output>\n\nFlinkBWA performs genomic alignment using bwa in a Hadoop/YARN cluster\nAvailable SparkBWA options are:\n";
+    private String header = "\t<FASTQ file 1> [FASTQ file 2] <SAM file output>\n\nFlinkBWA performs genomic alignment using bwa in a Hadoop/YARN cluster\nAvailable FlinkBWA options are:\n";
     //+ "\n\n----FLINK SHELL OPTIONS----\n\nTo set the Input.fastq - setInputPath(string)\n"
     //+ "To set the Input2.fastq - setInputPath2(string)\n"
     //+ "To set the Output - setOutputPath(string)\n"
@@ -617,18 +617,18 @@ public class BwaOptions {
     }
 
     /**
-     * Getter for the option to sort the input reads using Spark
+     * Getter for the option to sort the input reads using Flink
      *
-     * @return A boolean value that represents if the sorting method using Spark is going to be used
+     * @return A boolean value that represents if the sorting method using Flink is going to be used
      */
     public boolean isSortFastqReads() {
         return sortFastqReads;
     }
 
     /**
-     * Setter for the option to sort the input reads using Spark
+     * Setter for the option to sort the input reads using Flink
      *
-     * @param sortFastqReads A boolean value that represents if the sorting method using Spark is
+     * @param sortFastqReads A boolean value that represents if the sorting method using Flink is
      *                       going to be used
      */
     public void setSortFastqReads(boolean sortFastqReads) {

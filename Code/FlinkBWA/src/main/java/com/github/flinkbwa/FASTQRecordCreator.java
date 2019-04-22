@@ -2,7 +2,7 @@ package com.github.flinkbwa;
 
 //import org.apache.spark.api.java.function.Function;
 import org.apache.flink.curator.shaded.com.google.common.base.Function;
-import scala.Tuple2;
+import org.apache.flink.api.java.tuple.Tuple2;
 import javax.annotation.Nullable;
 
 /**
@@ -21,8 +21,8 @@ public class FASTQRecordCreator implements Function<Iterable<Tuple2<String, Long
 
         for (Tuple2<String, Long> recordLine : tuple2s) {
             // Keep in mind that records are sorted by key. This is, we have 4 available lines here
-            Long lineNum = recordLine._2();
-            String line = recordLine._1();
+            Long lineNum = recordLine.f1;
+            String line = recordLine.f0;
 
             if (lineNum == 0) {
                 seqName = line;

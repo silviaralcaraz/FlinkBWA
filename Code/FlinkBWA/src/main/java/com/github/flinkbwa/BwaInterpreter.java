@@ -2,11 +2,19 @@ package com.github.flinkbwa;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.flink.api.common.operators.Order;
+import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.api.java.utils.DataSetUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.ContentSummary;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+
+import org.apache.flink.api.java.DataSet;
+import org.apache.flink.api.java.ExecutionEnvironment;
+import org.apache.flink.api.java.utils.ParameterTool;
+
 /*
 import org.apache.spark.ContextCleaner;
 import org.apache.spark.SparkConf;
@@ -16,9 +24,6 @@ import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.storage.StorageLevel;
 */
-
-import scala.Tuple2;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -26,47 +31,45 @@ import java.util.List;
 
 /**
  * BWAInterpreter class
- *
- * @author Jose M. Abuin
- * @brief This class communicates Spark with BWA
  */
 public class BwaInterpreter {
+    //TODO: delete this attributes
+    //private SparkConf sparkConf; 	// The Spark Configuration to use
+    //private JavaSparkContext 				ctx;									// The Java Spark Context
 
     private static final Log LOG = LogFactory.getLog(BwaInterpreter.class); // The LOG
-    //private SparkConf 						sparkConf; 								// The Spark Configuration to use
-    //private JavaSparkContext 				ctx;									// The Java Spark Context
+    private ParameterTool parameters = ParameterTool.fromSystemProperties();
+    private ExecutionEnvironment environment = ExecutionEnvironment.getExecutionEnvironment();
     private Configuration conf;                                    // Global Configuration
-    //private JavaRDD<Tuple2<String, String>> dataRDD;
     private long totalInputLength;
-    //private long blocksize;
     private BwaOptions options;                                // Options for BWA
+    private long blocksize;
+    //private JavaRDD<Tuple2<String, String>> dataRDD;
     //private String inputTmpFileName;
 
 
     /**
-     * Constructor to build the BWAInterpreter object from the Spark shell When creating a
-     * BWAInterpreter object from the Spark shell, the BwaOptions and the Spark Context objects need
+     * Constructor to build the BWAInterpreter object from the Flink shell When creating a
+     * BWAInterpreter object from the Flink shell, the BwaOptions and the Spark Context objects need
      * to be passed as argument.
      *
-     * @param opcions The BwaOptions object initialized with the user options
-     * @param context The Spark Context from the Spark Shell. Usually "sc"
+     * @param optionsFromShell The BwaOptions object initialized with the user options
+     * @param executionEnvironment          The Spark Context from the Spark Shell. Usually "sc"
      * @return The BWAInterpreter object with its options initialized.
      */
-    public BwaInterpreter(BwaOptions optionsFromShell, SparkContext context) {
-
+    public BwaInterpreter(BwaOptions optionsFromShell, ExecutionEnvironment executionEnvironment) {
         this.options = optionsFromShell;
-        this.ctx = new JavaSparkContext(context);
+        this.environment = executionEnvironment;
         this.initInterpreter();
     }
 
     /**
-     * Constructor to build the BWAInterpreter object from within SparkBWA
+     * Constructor to build the BWAInterpreter object from within FlinkBWA
      *
      * @param args Arguments got from Linux console when launching SparkBWA with Spark
      * @return The BWAInterpreter object with its options initialized.
      */
-    public BWAInterpreter(String[] args) {
-
+    public BwaInterpreter(String[] args) {
         this.options = new BwaOptions(args);
         this.initInterpreter();
     }
@@ -85,7 +88,7 @@ public class BwaInterpreter {
             long lengthFile1 = cSummaryFile1.getLength();
             long lengthFile2 = 0;
 
-            if (!options.getInputPath2().isEmpty()) {
+            if (options.getInputPath2().length() != 0) {
                 ContentSummary cSummaryFile2 = fs.getContentSummary(new Path(options.getInputPath()));
                 lengthFile2 = cSummaryFile2.getLength();
             }
@@ -127,54 +130,53 @@ public class BwaInterpreter {
     /**
      * Function to load a FASTQ file from HDFS into a JavaPairRDD<Long, String>
      *
-     * @param ctx         The JavaSparkContext to use
+     * @param environment         The JavaSparkContext to use
      * @param pathToFastq The path to the FASTQ file
      * @return A JavaPairRDD containing <Long Read ID, String Read>
      */
-    public static JavaPairRDD<Long, String> loadFastq(JavaSparkContext ctx, String pathToFastq) {
-        JavaRDD<String> fastqLines = ctx.textFile(pathToFastq);
-
+    public static  DataSet<Tuple2<Long, String>> loadFastq(ExecutionEnvironment environment, String pathToFastq) {
+        DataSet<String> fastqFile = environment.readTextFile(pathToFastq);
+        DataSet<Tuple2<Long, String>> fastqLines = DataSetUtils.zipWithIndex(fastqFile);
         // Determine which FASTQ record the line belongs to.
-        JavaPairRDD<Long, Tuple2<String, Long>> fastqLinesByRecordNum = fastqLines.zipWithIndex().mapToPair(new FASTQRecordGrouper());
+        DataSet<Tuple2<Long, Tuple2<Long, String>>> fastqLinesByRecordNum = fastqLines.map(new FASTQRecordGrouper());
 
         // Group group the lines which belongs to the same record, and concatinate them into a record.
-        return fastqLinesByRecordNum.groupByKey().mapValues(new FASTQRecordCreator());
+        return fastqLinesByRecordNum.groupBy(0).reduceGroup(new FASTQRecordCreator());
     }
+
 
     /**
      * Method to perform and handle the single reads sorting
      *
      * @return A RDD containing the strings with the sorted reads from the FASTQ file
      */
-    private JavaRDD<String> handleSingleReadsSorting() {
-        JavaRDD<String> readsRDD = null;
-
+    private DataSet<String> handleSingleReadsSorting() {
+        DataSet<String> reads = null;
         long startTime = System.nanoTime();
-
         LOG.info("[" + this.getClass().getName() + "] :: Not sorting in HDFS. Timing: " + startTime);
 
         // Read the FASTQ file from HDFS using the FastqInputFormat class
-        JavaPairRDD<Long, String> singleReadsKeyVal = loadFastq(this.ctx, this.options.getInputPath());
+        DataSet<Tuple2<Long, String>> singleReadsKeyVal = loadFastq(this.environment, this.options.getInputPath());
 
         // Sort in memory with no partitioning
         if ((options.getPartitionNumber() == 0) && (options.isSortFastqReads())) {
             // First, the join operation is performed. After that,
             // a sortByKey. The resulting values are obtained
-            readsRDD = singleReadsKeyVal.sortByKey().values();
+            reads = singleReadsKeyVal.partitionByRange(0).sortPartition(0, Order.ASCENDING).map(new BwaMapFunctionPairValues());
             LOG.info("[" + this.getClass().getName() + "] :: Sorting in memory without partitioning");
         }
 
         // Sort in memory with partitioning
         else if ((options.getPartitionNumber() != 0) && (options.isSortFastqReads())) {
             singleReadsKeyVal = singleReadsKeyVal.repartition(options.getPartitionNumber());
-            readsRDD = singleReadsKeyVal.sortByKey().values();//.persist(StorageLevel.MEMORY_ONLY());
+            reads = singleReadsKeyVal.sortByKey().values();//.persist(StorageLevel.MEMORY_ONLY());
             LOG.info("[" + this.getClass().getName() + "] :: Repartition with sort");
         }
 
         // No Sort with no partitioning
         else if ((options.getPartitionNumber() == 0) && (!options.isSortFastqReads())) {
             LOG.info("[" + this.getClass().getName() + "] :: No sort and no partitioning");
-            readsRDD = singleReadsKeyVal.values();
+            reads = singleReadsKeyVal.values();
         }
 
         // No Sort with partitioning
@@ -193,7 +195,7 @@ public class BwaInterpreter {
                 LOG.info("[" + this.getClass().getName() + "] :: Repartition(Coalesce) with no sort");
             }
 
-            readsRDD = singleReadsKeyVal
+            reads = singleReadsKeyVal
                     .repartition(options.getPartitionNumber())
                     .values();
             //.persist(StorageLevel.MEMORY_ONLY());
@@ -214,17 +216,16 @@ public class BwaInterpreter {
      *
      * @return A JavaRDD containing grouped reads from the paired FASTQ files
      */
-    private JavaRDD<Tuple2<String, String>> handlePairedReadsSorting() {
-        JavaRDD<Tuple2<String, String>> readsRDD = null;
-
+    private DataSet<Tuple2<String, String>> handlePairedReadsSorting() {
+        DataSet<Tuple2<String, String>> readsRDD = null;
         long startTime = System.nanoTime();
-
         LOG.info("[" + this.getClass().getName() + "] ::Not sorting in HDFS. Timing: " + startTime);
 
-        // Read the two FASTQ files from HDFS using the loadFastq method. After that, a Spark join operation is performed
-        JavaPairRDD<Long, String> datasetTmp1 = loadFastq(this.ctx, options.getInputPath());
-        JavaPairRDD<Long, String> datasetTmp2 = loadFastq(this.ctx, options.getInputPath2());
-        JavaPairRDD<Long, Tuple2<String, String>> pairedReadsRDD = datasetTmp1.join(datasetTmp2);
+        // Read the two FASTQ files from HDFS using the loadFastq method. After that, a Flink join operation is performed
+        DataSet<Tuple2<Long, String>> datasetTmp1 = loadFastq(this.environment, options.getInputPath());
+        DataSet<Tuple2<Long, String>> datasetTmp2 = loadFastq(this.environment, options.getInputPath2());
+        DataSet<Tuple2<Long, Tuple2<String, String>>> pairedReadsRDD = datasetTmp1.join(datasetTmp2).
+                where(String.valueOf(new BwaKeySelector())).equalTo(String.valueOf(new BwaKeySelector())).map(new BwaMapFunctionPairValues());
 
         datasetTmp1.unpersist();
         datasetTmp2.unpersist();
@@ -253,7 +254,7 @@ public class BwaInterpreter {
             int numPartitions = pairedReadsRDD.partitions().size();
 
 			/*
-			 * As in previous cases, the coalesce operation is not suitable
+             * As in previous cases, the coalesce operation is not suitable
 			 * if we want to achieve the maximum speedup, so, repartition
 			 * is used.
 			 */
@@ -351,7 +352,6 @@ public class BwaInterpreter {
 
                     fs.delete(new Path(returnedValues.get(i)), true);
                 }
-
                 outputFinalStream.close();
                 fs.close();
             } catch (IOException e) {
@@ -359,23 +359,6 @@ public class BwaInterpreter {
                 LOG.error(e.toString());
             }
         }
-		/* // Previous version doesn't makes sense. We do not have tmp files in HDFS
-		for (String outputFile : returnedValues) {
-			LOG.info("["+this.getClass().getName()+"] :: SparkBWA:: Returned file ::" + outputFile);
-			//After the execution, if the inputTmp exists, it should be deleted
-			try {
-				if ((this.inputTmpFileName != null) && (!this.inputTmpFileName.isEmpty())) {
-					FileSystem fs = FileSystem.get(this.conf);
-					fs.delete(new Path(this.inputTmpFileName), true);
-					fs.close();
-				}
-			}
-			catch (IOException e) {
-				e.printStackTrace();
-				LOG.error(e.toString());
-			}
-		}
-		*/
     }
 
     /**
@@ -403,10 +386,8 @@ public class BwaInterpreter {
                     + options.getPartitionNumber()
                     + "-"
                     + sorting);
-
             //The ctx is created from scratch
             this.ctx = new JavaSparkContext(this.sparkConf);
-
         }
         //Otherwise, the procedure is being called from the Spark shell
         else {
@@ -419,10 +400,7 @@ public class BwaInterpreter {
 
         //The block size
         this.blocksize = this.conf.getLong("dfs.blocksize", 134217728);
-
         createOutputFolder();
         setTotalInputLength();
-
-        //ContextCleaner cleaner = this.ctx.sc().cleaner().get();
     }
 }

@@ -313,13 +313,12 @@ public class Bwa implements Serializable {
         parameters.add(algorithm);
 
         // If extra BWA parameters are added
-        if (this.bwaArgs.length() != 0) { // Original: (!this.bwaArgs.isEmpty())
+        if (!this.bwaArgs.isEmpty()) {
             String[] arrayBwaArgs = this.bwaArgs.split(" ");
             int numBwaArgs = arrayBwaArgs.length;
             for (int i = 0; i < numBwaArgs; i++) {
                 parameters.add(arrayBwaArgs[i]);
             }
-            //parameters.add(this.bwaArgs);
         }
 
         //The third parameter is the output file===================================================

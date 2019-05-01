@@ -17,7 +17,6 @@
 
 package com.github.flinkbwa;
 
-//import org.apache.spark.api.java.function.PairFunction;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
 
@@ -39,23 +38,4 @@ public class FASTQRecordGrouper implements MapFunction<Tuple2<Long, String>, Tup
 
         return new Tuple2<Long,Tuple2<Long, String>>(recordNum, newRecordTuple);
     }
-
-    /*
-    TODO: delete this method
-    @Override
-    public Tuple2<Long, Tuple2<String, Long>> call(Tuple2<String, Long> recordTuple) throws Exception {
-
-        // We get string input and line number
-        String line = recordTuple._1();
-        Long fastqLineNum = recordTuple._2();
-
-        // We obtain the record number from the line number
-        Long recordNum = (long) Math.floor(fastqLineNum / 4);
-        // We form the pair <String line, Long index inside record (0..3)>
-        Tuple2<String, Long> newRecordTuple = new Tuple2<String, Long>(line, fastqLineNum % 4);
-
-        // We return the data to group <Long record number,<String line, Long line index>>
-        return new Tuple2<Long,Tuple2<String, Long>>(recordNum, newRecordTuple);
-    }
-    */
 }

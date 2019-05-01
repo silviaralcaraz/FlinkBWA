@@ -8,7 +8,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
 import org.apache.flink.api.java.ExecutionEnvironment;
-//import org.apache.spark.SparkContext;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +35,7 @@ public class BwaAlignmentBase {
     public BwaAlignmentBase(ExecutionEnvironment environment, Bwa bwaInterpreter) {
         this.appId = environment.getId().toString();
         this.appName = "FlinkBWA";
-        //TODO: tmp dir???
+        //TODO: tmp dir (?) (1)
         this.tmpDir = "/tmp";
         //this.tmpDir = context.getLocalProperty("spark.local.dir");
         this.bwaInterpreter = bwaInterpreter;
@@ -44,14 +43,17 @@ public class BwaAlignmentBase {
         //We set the tmp dir
         if ((this.tmpDir == null || this.tmpDir == "null")
                 && this.bwaInterpreter.getTmpDir() != null
-                && (!(this.bwaInterpreter.getTmpDir().length() != 0))) {
+                && !this.bwaInterpreter.getTmpDir().isEmpty()) {
 
             this.tmpDir = bwaInterpreter.getTmpDir();
         }
 
+        //TODO: tmp dir (?) (2)
+        /*
         if (this.tmpDir == null || this.tmpDir == "null") {
             this.tmpDir = context.hadoopConfiguration().get("hadoop.tmp.dir");
         }
+        */
 
         if (this.tmpDir.startsWith("file:")) {
             this.tmpDir = this.tmpDir.replaceFirst("file:", "");
@@ -123,18 +125,12 @@ public class BwaAlignmentBase {
         this.LOG.info("[" + this.getClass().getName() + "] :: " + this.appId + " - " + this.appName + " Copying files...");
 
         try {
-            //if (outputDir.startsWith("hdfs")) {
             Configuration conf = new Configuration();
             FileSystem fs = FileSystem.get(conf);
-
             fs.copyFromLocalFile(
                     new Path(this.bwaInterpreter.getOutputFile()),
                     new Path(outputDir + "/" + outputSamFileName)
             );
-            /*} else {
-				File localSamOutput = new File(this.bwaInterpreter.getOutputFile());
-				Files.copy(Paths.get(localSamOutput.getPath()), Paths.get(outputDir, localSamOutput.getName()));
-			}*/
         } catch (IOException e) {
             e.printStackTrace();
             this.LOG.error(e.toString());

@@ -29,7 +29,10 @@ public class BwaOptions {
     private String tmpPath = "";
     private boolean useReducer = false;
     private String correctUse =
-            "flink run -c com.github.flinkbwa.FlinkBWA FlinkBWA-0.1.jar";// [FlinkBWA Options] Input.fastq [Input2.fastq] Output\n";
+            "flink run -c com.github.flinkbwa.FlinkBWA FlinkBWA.jar"; // [FlinkBWA Options] Input.fastq [Input2.fastq] Output\n";
+    // -c option is for run a program with specific class as an entry point
+
+
     // Header to show when the program is not launched correctly
     private String header = "\t<FASTQ file 1> [FASTQ file 2] <SAM file output>\n\nFlinkBWA performs genomic alignment using bwa in a Hadoop/YARN cluster\nAvailable FlinkBWA options are:\n";
     //+ "\n\n----FLINK SHELL OPTIONS----\n\nTo set the Input.fastq - setInputPath(string)\n"
@@ -37,7 +40,7 @@ public class BwaOptions {
     //+ "To set the Output - setOutputPath(string)\n"
     //+ "The available FlinkBWA options are: \n\n";
 
-    private String headerAlt = "flink run -c com.github.flinkbwa.FlinkBWA FlinkBWA-0.1.jar\n" +
+    private String headerAlt = "flink run -c com.github.flinkbwa.FlinkBWA FlinkBWA.jar\n" +
             "       [-a | -b | -m]  [-f | -k] [-h] [-i <Index prefix>]   [-n <Number of\n" +
             "       partitions>] [-p | -s] [-r]  [-w <\"BWA arguments\">] [-t <\"tmp path\">]\n" +
             "       <FASTQ file 1> [FASTQ file 2] <SAM file output>";
@@ -101,7 +104,6 @@ public class BwaOptions {
             ArrayList<Option> availableOptions = ((ArrayList<Option>) pair.getValue());
             for (int i = 0; i < availableOptions.size(); i++) {
                 Option currentOption = availableOptions.get(i);
-
                 newOptionOutput = "  " + "-" + currentOption.getOpt() + ", --" + currentOption.getLongOpt();
 
                 if (currentOption.hasArg()) {
@@ -124,7 +126,6 @@ public class BwaOptions {
      * Constructor to use with no options
      */
     public BwaOptions() {
-
     }
 
     /**
@@ -145,7 +146,9 @@ public class BwaOptions {
         //formatter.printHelp( correctUse,header, options,footer , true);
 
         //Parse the given arguments
-        CommandLineParser parser = new BasicParser();
+        //TODO: borrar siguiente linea si DefaultParser funciona igual
+        //CommandLineParser parser = new BasicParser(); //It's deprecated!!
+        CommandLineParser parser = new DefaultParser();
         CommandLine cmd;
 
         try {
@@ -179,12 +182,6 @@ public class BwaOptions {
             if (cmd.hasOption("index") || cmd.hasOption('i')) {
                 indexPath = cmd.getOptionValue("index");
             }
-            /* There is no need of this, as the index option is mandatory
-            else {
-				LOG.error("["+this.getClass().getName()+"] :: No index has been found. Aborting.");
-				formatter.printHelp(correctUse, header, options, footer, true);
-				System.exit(1);
-			}*/
 
             //Partition number
             if (cmd.hasOption("partitions") || cmd.hasOption('n')) {
@@ -284,9 +281,6 @@ public class BwaOptions {
     public Options initOptions() {
         Options privateOptions = new Options();
         //Algorithm options
-        //Option algorithm = new Option("a", "algorithm", true, "Specify the algorithm to use during the alignment");
-        //algorithm.setArgName("mem | aln | bwasw");
-        //options.addOption(algorithm);
         OptionGroup algorithm = new OptionGroup();
         Option mem = new Option("m", "mem", false, "The MEM algorithm will be used");
         algorithm.addOption(mem);
@@ -298,11 +292,8 @@ public class BwaOptions {
         algorithm.addOption(bwasw);
 
         privateOptions.addOptionGroup(algorithm);
-        //Paired or single reads
-        //Option reads = new Option("r", "reads", true, "Type of reads to use during alignment");
-        //reads.setArgName("paired | single");
 
-        //options.addOption(reads);
+        //Paired or single reads
         OptionGroup reads = new OptionGroup();
 
         Option paired = new Option("p", "paired", false, "Paired reads will be used as input FASTQ reads");
@@ -351,18 +342,13 @@ public class BwaOptions {
         privateOptions.addOptionGroup(reducerGroup);
 
         //Sorting
-        //Option sorting = new Option("s", "sorting", true, "Type of algorithm used to sort input FASTQ reads");
-        //sorting.setArgName("hdfs | spark");
-        //options.addOption(sorting);
         OptionGroup sorting = new OptionGroup();
 
         Option hdfs = new Option("f", "hdfs", false, "The HDFS is used to perform the input FASTQ reads sort");
         sorting.addOption(hdfs);
 
-        /*
-        Option spark = new Option("k", "spark", false, "the Spark engine is used to perform the input FASTQ reads sort");
-        sorting.addOption(spark);
-        */
+        Option flink = new Option("k", "flink", false, "the Flink engine is used to perform the input FASTQ reads sort");
+        sorting.addOption(flink);
 
         privateOptions.addOptionGroup(sorting);
 

@@ -3,6 +3,7 @@ package com.github.flinkbwa;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.apache.flink.api.java.hadoop.mapred.utils.HadoopUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -48,12 +49,9 @@ public class BwaAlignmentBase {
             this.tmpDir = bwaInterpreter.getTmpDir();
         }
 
-        //TODO: tmp dir (?) (2)
-        /*
         if (this.tmpDir == null || this.tmpDir == "null") {
-            this.tmpDir = context.hadoopConfiguration().get("hadoop.tmp.dir");
+            this.tmpDir = HadoopUtils.getHadoopConfiguration().get("hadoop.tmp.dir");
         }
-        */
 
         if (this.tmpDir.startsWith("file:")) {
             this.tmpDir = this.tmpDir.replaceFirst("file:", "");

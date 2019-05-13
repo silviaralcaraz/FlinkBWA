@@ -3,6 +3,9 @@ package com.github.flinkbwa;
 import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.flink.api.common.ExecutionConfig;
+import org.apache.flink.api.java.LocalEnvironment;
+import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.ContentSummary;
 import org.apache.hadoop.fs.FileSystem;
@@ -33,11 +36,13 @@ public class BwaInterpreter {
     //private String inputTmpFileName; // We do not have tmp files in HDFS
 
     private static final Log LOG = LogFactory.getLog(BwaInterpreter.class); // The LOG
-    private Configuration conf;                                    // Global Configuration
+    private Configuration conf; // Global Configuration
     private org.apache.flink.configuration.Configuration flinkConf; // The Flink Configuration to use
-    private ExecutionEnvironment environment = ExecutionEnvironment.getExecutionEnvironment();
+    private ExecutionConfig executionConf; // Execution configuration
+    private ParameterTool parameters; // Flink job parameters
+    private ExecutionEnvironment environment = ExecutionEnvironment.getExecutionEnvironment(); // Flink environment
+    private BwaOptions options; // Options for BWA
     private long totalInputLength;
-    private BwaOptions options;                                // Options for BWA
     private long blocksize;
 
     /**
@@ -126,6 +131,9 @@ public class BwaInterpreter {
      */
     public static DataSet<Tuple2<Long, String>> loadFastq(ExecutionEnvironment environment, String pathToFastq) {
         DataSet<String> fastqLines = environment.readTextFile(pathToFastq);
+        // If is a hdfs file:
+        //environment.readCsvFile("hdfs:" + pathToFastq);
+
         // Determine which FASTQ record the line belongs to.
         DataSet<Tuple2<Long, Tuple2<Long, String>>> fastqLinesByRecordNum
                 = DataSetUtils.zipWithIndex(fastqLines).map(new FASTQRecordGrouper());
@@ -382,9 +390,7 @@ public class BwaInterpreter {
     public void initInterpreter() {
         //If ctx is null, this procedure is being called from the Linux console with Spark
         if (this.environment == null) {
-
             String sorting;
-
             //Check for the options to perform the sort reads
             if (options.isSortFastqReads()) {
                 sorting = "SortSpark";
@@ -395,13 +401,14 @@ public class BwaInterpreter {
             }
 
             //The application name is set
-            /* TODO: delete spark code
+            /*
             this.sparkConf = new SparkConf().setAppName("SparkBWA_"
                     + options.getInputPath().split("/")[options.getInputPath().split("/").length - 1]
                     + "-"
                     + options.getPartitionNumber()
                     + "-"
-                    + sorting);*/
+                    + sorting);
+            */
             this.flinkConf = new org.apache.flink.configuration.Configuration();
             this.flinkConf.setString("AppName", "FlinkBWA_"
                     + options.getInputPath().split("/")[options.getInputPath().split("/").length - 1]
@@ -411,13 +418,15 @@ public class BwaInterpreter {
                     + sorting);
 
             //The ctx is created from scratch
-            //this.ctx = new JavaSparkContext(this.sparkConf); //TODO: do it with flink
+            //this.ctx = new JavaSparkContext(this.sparkConf);
         }
         //Otherwise, the procedure is being called from the Spark shell
         else {
             //this.sparkConf = this.ctx.getConf(); //TODO: do it with flink
+            ExecutionConfig a = this.environment.getConfig();
         }
         //The Hadoop configuration is obtained
+        Configuration getHadoopConfiguration;
         //this.conf = this.ctx.hadoopConfiguration(); //TODO: do it with flink
 
         //The block size

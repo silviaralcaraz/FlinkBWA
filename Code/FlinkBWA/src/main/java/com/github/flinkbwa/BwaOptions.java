@@ -146,8 +146,6 @@ public class BwaOptions {
         //formatter.printHelp( correctUse,header, options,footer , true);
 
         //Parse the given arguments
-        //TODO: borrar siguiente linea si DefaultParser funciona igual
-        //CommandLineParser parser = new BasicParser(); //It's deprecated!!
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd;
 

@@ -5,6 +5,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.java.LocalEnvironment;
+import org.apache.flink.api.java.hadoop.mapred.utils.HadoopUtils;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.ContentSummary;
@@ -29,12 +30,10 @@ import java.util.List;
  * BWAInterpreter class
  */
 public class BwaInterpreter {
-    //TODO: delete this attributes
     //private JavaRDD<Tuple2<String, String>> dataRDD; // Nunca se usa en SparkBWA
     //private SparkConf sparkConf; 	// The Spark Configuration to use
     //private JavaSparkContext 	ctx; // The Java Spark Context
     //private String inputTmpFileName; // We do not have tmp files in HDFS
-
     private static final Log LOG = LogFactory.getLog(BwaInterpreter.class); // The LOG
     private Configuration conf; // Global Configuration
     private org.apache.flink.configuration.Configuration flinkConf; // The Flink Configuration to use
@@ -57,8 +56,7 @@ public class BwaInterpreter {
     public BwaInterpreter(BwaOptions optionsFromShell, ExecutionEnvironment executionEnvironment) {
         this.options = optionsFromShell;
         this.environment = executionEnvironment;
-        //TODO: init interpreter (1)
-        //this.initInterpreter();
+        this.initInterpreter();
     }
 
     /**
@@ -69,8 +67,7 @@ public class BwaInterpreter {
      */
     public BwaInterpreter(String[] args) {
         this.options = new BwaOptions(args);
-        //TODO: init interpreter (2)
-        //this.initInterpreter();
+        this.initInterpreter();
     }
 
     /**
@@ -380,8 +377,7 @@ public class BwaInterpreter {
     /**
      * Procedure to init the BWAInterpreter configuration parameters
      */
-    //TODO: adaptar metodo initInterpreter
-
+    //FIXME: fix it if not works fine
     public void initInterpreter() {
         //If ctx is null, this procedure is being called from the Linux console with Spark
         if (this.environment == null) {
@@ -413,16 +409,17 @@ public class BwaInterpreter {
                     + sorting);
 
             //The ctx is created from scratch
+            this.environment = new LocalEnvironment(this.flinkConf);
             //this.ctx = new JavaSparkContext(this.sparkConf);
         }
         //Otherwise, the procedure is being called from the Spark shell
         else {
-            //this.sparkConf = this.ctx.getConf(); //TODO: do it with flink
-            ExecutionConfig a = this.environment.getConfig();
+            //this.sparkConf = this.ctx.getConf();
+            this.executionConf = this.environment.getConfig();
         }
         //The Hadoop configuration is obtained
-        Configuration getHadoopConfiguration;
-        //this.conf = this.ctx.hadoopConfiguration(); //TODO: do it with flink
+        //this.conf = this.ctx.hadoopConfiguration();
+        this.conf = HadoopUtils.getHadoopConfiguration();
 
         //The block size
         this.blocksize = this.conf.getLong("dfs.blocksize", 134217728);

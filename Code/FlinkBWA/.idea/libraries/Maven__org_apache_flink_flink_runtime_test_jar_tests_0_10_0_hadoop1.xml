@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.apache.flink:flink-runtime:test-jar:tests:0.10.0-hadoop1">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/apache/flink/flink-runtime/0.10.0-hadoop1/flink-runtime-0.10.0-hadoop1-tests.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/org/apache/flink/flink-runtime/0.10.0-hadoop1/flink-runtime-0.10.0-hadoop1-test-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/apache/flink/flink-runtime/0.10.0-hadoop1/flink-runtime-0.10.0-hadoop1-test-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

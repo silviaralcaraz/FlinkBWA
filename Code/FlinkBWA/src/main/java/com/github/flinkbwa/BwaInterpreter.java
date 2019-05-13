@@ -177,33 +177,29 @@ public class BwaInterpreter {
             readsDataSet = singleReadsKeyVal.map(new BwaMapFunctionValues());
         }
 
-
         // No Sort with partitioning
-        //TODO: partitioning in flink (?) (1) -> how to get partitions?
         else {
             LOG.info("[" + this.getClass().getName() + "] :: No sort with partitioning");
             readsDataSet = singleReadsKeyVal.partitionByRange(0).map(new BwaMapFunctionValues());
+            //FIXME: if level of parallelism is not the same as partitions size
             //int numPartitions = singleReadsKeyVal.partitions().size();
+            int numPartitions = singleReadsKeyVal.getExecutionEnvironment().getParallelism();
+
             /*
              * As in previous cases, the coalesce operation is not suitable
 			 * if we want to achieve the maximum speedup, so, repartition
 			 * is used.
 			 */
-            /*
             if ((numPartitions) <= options.getPartitionNumber()) {
                 LOG.info("["+this.getClass().getName()+"] :: Repartition with no sort");
             }
             else {
                 LOG.info("["+this.getClass().getName()+"] :: Repartition(Coalesce) with no sort");
             }
-
-            reads = singleReadsKeyVal
-                    .repartition(options.getPartitionNumber())
-                    .values();
-            //.persist(StorageLevel.MEMORY_ONLY());
-            */
+            //reads = singleReadsKeyVal.repartition(options.getPartitionNumber()).values();
+            readsDataSet = singleReadsKeyVal.partitionByRange(options.getPartitionNumber()).
+                    map(new BwaMapFunctionValues());
         }
-
         long endTime = System.nanoTime();
         LOG.info("[" + this.getClass().getName() + "] :: End of sorting. Timing: " + endTime);
         LOG.info("[" + this.getClass().getName() + "] :: Total time: " + (endTime - startTime) / 1e9 / 60.0 + " minutes");
@@ -229,11 +225,10 @@ public class BwaInterpreter {
 
         /*
         En flink no existe esta funcion, el programa debe ser recargado para actualizar los datos
-        TODO: eliminar si no es necesario || cambiar por metodos adecuados si hace falta
+        FIXME: delete if is not necessary (I think in Flink doesn't exist) || change by the right methods
         datasetTmp1.unpersist();
         datasetTmp2.unpersist();
         */
-
 
         // Sort in memory with no partitioning
         if ((options.getPartitionNumber() == 0) && (options.isSortFastqReads())) {
@@ -245,7 +240,7 @@ public class BwaInterpreter {
         // Sort in memory with partitioning
         else if ((options.getPartitionNumber() != 0) && (options.isSortFastqReads())) {
             //pairedReadsDataSet = pairedReadsDataSet.repartition(options.getPartitionNumber());
-            readsDataSet = pairedReadsDataSet.partitionByRange(0).sortPartition(0, Order.ASCENDING).
+            readsDataSet = pairedReadsDataSet.partitionByRange(options.getPartitionNumber()).sortPartition(0, Order.ASCENDING).
                     map(new BwaMapFunctionPairValues());
             LOG.info("[" + this.getClass().getName() + "] :: Repartition with sort");
         }
@@ -256,16 +251,16 @@ public class BwaInterpreter {
         }
 
         // No Sort with partitioning
-        //TODO: partitioning in flink (?) (2)
         else {
             LOG.info("[" + this.getClass().getName() + "] :: No sort with partitioning");
             //int numPartitions = pairedReadsRDD.partitions().size();
+            int numPartitions = pairedReadsDataSet.getExecutionEnvironment().getParallelism();
 			/*
 			 * As in previous cases, the coalesce operation is not suitable
 			 * if we want to achieve the maximum speedup, so, repartition
 			 * is used.
 			 */
-			/*
+
             if ((numPartitions) <= options.getPartitionNumber()) {
                 LOG.info("["+this.getClass().getName()+"] :: Repartition with no sort");
             }
@@ -273,13 +268,13 @@ public class BwaInterpreter {
                 LOG.info("["+this.getClass().getName()+"] :: Repartition(Coalesce) with no sort");
             }
 
+            readsDataSet = pairedReadsDataSet.partitionByRange(options.getPartitionNumber()).
+                    map(new BwaMapFunctionPairValues());
+            /*
             readsRDD = pairedReadsRDD
                     .repartition(options.getPartitionNumber())
                     .values();
-            //.persist(StorageLevel.MEMORY_ONLY());
-        */
-            readsDataSet = pairedReadsDataSet.map(new BwaMapFunctionPairValues())
-                    .setParallelism(options.getPartitionNumber());
+             */
         }
         long endTime = System.nanoTime();
         LOG.info("[" + this.getClass().getName() + "] :: End of sorting. Timing: " + endTime);

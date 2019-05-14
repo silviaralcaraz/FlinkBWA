@@ -36,8 +36,9 @@ public class BwaAlignmentBase {
     public BwaAlignmentBase(ExecutionEnvironment environment, Bwa bwaInterpreter) {
         this.appId = environment.getId().toString();
         this.appName = "FlinkBWA";
-        //TODO: tmp dir (?) (1)
+        //FIXME: change tmpdir?
         this.tmpDir = "/tmp";
+        //GlobalConfiguration.FLINK_CONF_FILENAME;
         //this.tmpDir = context.getLocalProperty("spark.local.dir");
         this.bwaInterpreter = bwaInterpreter;
 

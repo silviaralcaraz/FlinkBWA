@@ -419,6 +419,7 @@ public class BwaInterpreter {
         }
         //The Hadoop configuration is obtained
         //this.conf = this.ctx.hadoopConfiguration();
+        //FIXME: not work
         this.conf = HadoopUtils.getHadoopConfiguration();
 
         //The block size

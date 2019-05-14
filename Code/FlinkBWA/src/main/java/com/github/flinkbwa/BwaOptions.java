@@ -142,8 +142,6 @@ public class BwaOptions {
         this.options = this.initOptions();
         //To print the help
         HelpFormatter formatter = new HelpFormatter();
-        //formatter.setWidth(500);
-        //formatter.printHelp( correctUse,header, options,footer , true);
 
         //Parse the given arguments
         CommandLineParser parser = new DefaultParser();

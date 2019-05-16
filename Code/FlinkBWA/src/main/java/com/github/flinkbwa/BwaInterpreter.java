@@ -420,7 +420,7 @@ public class BwaInterpreter {
         //The Hadoop configuration is obtained
         //this.conf = this.ctx.hadoopConfiguration();
         //FIXME: not work
-        this.conf = HadoopUtils.getHadoopConfiguration();
+        this.conf = HadoopUtils.getHadoopConfiguration(); // Need hadoop especification in flink-conf.yaml (?)
 
         //The block size
         this.blocksize = this.conf.getLong("dfs.blocksize", 134217728);

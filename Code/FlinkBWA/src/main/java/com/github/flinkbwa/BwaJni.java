@@ -1,6 +1,7 @@
 package com.github.flinkbwa;
 
-import cz.adamh.utils.NativeUtils;
+//import cz.adamh.utils.NativeUtils;
+import com.github.flinkbwa.utils.NativeUtils;
 import java.io.IOException;
 
 /**

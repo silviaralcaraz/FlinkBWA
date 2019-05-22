@@ -8,6 +8,14 @@
     <artifactId>FlinkBWA</artifactId>
     <version>1.0-SNAPSHOT</version>
 
+    <repositories>
+        <repository>
+            <id>128</id>
+            <name>mvn.128.no</name>
+            <url>https://mvn.128.no/maven2</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <!-- Apache Flink dependencies -->
         <dependency>
@@ -28,12 +36,13 @@
 
         <!-- Native Utils dependencies
             Not shared in m2 repository, link to issue: https://github.com/adamheinrich/native-utils/issues/13
+        -->
         <dependency>
             <groupId>cz.adamh.utils</groupId>
             <artifactId>native-utils</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
-        -->
+
 
         <dependency>
             <groupId>commons-logging</groupId>

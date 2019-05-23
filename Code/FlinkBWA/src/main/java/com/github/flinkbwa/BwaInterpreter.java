@@ -400,7 +400,7 @@ public class BwaInterpreter {
                     + "-"
                     + sorting);
             */
-            this.flinkConf = new org.apache.flink.configuration.Configuration();
+            /*this.flinkConf = new org.apache.flink.configuration.Configuration();
             this.flinkConf.setString("AppName", "FlinkBWA_"
                     + options.getInputPath().split("/")[options.getInputPath().split("/").length - 1]
                     + "-"
@@ -409,8 +409,9 @@ public class BwaInterpreter {
                     + sorting);
 
             //The ctx is created from scratch
-            this.environment = new LocalEnvironment(this.flinkConf);
+            this.environment = new LocalEnvironment(this.flinkConf);*/
             //this.ctx = new JavaSparkContext(this.sparkConf);
+            this.environment = ExecutionEnvironment.getExecutionEnvironment();
         }
         //Otherwise, the procedure is being called from the Spark shell
         else {
@@ -418,9 +419,9 @@ public class BwaInterpreter {
             this.executionConf = this.environment.getConfig();
         }
         //The Hadoop configuration is obtained
+        this.conf = new Configuration();
         //this.conf = this.ctx.hadoopConfiguration();
-        //FIXME: not work
-        this.conf = HadoopUtils.getHadoopConfiguration(); // Need hadoop especification in flink-conf.yaml (?)
+        //this.conf = HadoopUtils.getHadoopConfiguration(); // Need hadoop especification in flink-conf.yaml (?)
 
         //The block size
         this.blocksize = this.conf.getLong("dfs.blocksize", 134217728);

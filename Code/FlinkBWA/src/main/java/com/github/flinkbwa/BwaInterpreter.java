@@ -4,6 +4,7 @@ import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.flink.api.common.ExecutionConfig;
+import org.apache.flink.api.common.JobExecutionResult;
 import org.apache.flink.api.java.LocalEnvironment;
 import org.apache.flink.api.java.hadoop.mapred.utils.HadoopUtils;
 import org.apache.flink.api.java.utils.ParameterTool;
@@ -367,11 +368,14 @@ public class BwaInterpreter {
                 }
                 outputFinalStream.close();
                 fs.close();
-            } catch (IOException e) {
+
+                JobExecutionResult execute = environment.execute();
+            } catch (Exception e) {
                 e.printStackTrace();
                 LOG.error(e.toString());
             }
         }
+
     }
 
     /**

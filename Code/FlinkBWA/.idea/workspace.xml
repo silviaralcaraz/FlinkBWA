@@ -24,11 +24,32 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/main/java/com/github/flinkbwa/FlinkBWA.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="289">
+            <state relative-caret-position="245">
               <caret line="17" column="5" lean-forward="true" selection-start-line="17" selection-start-column="5" selection-end-line="17" selection-end-column="5" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/java/com/github/flinkbwa/BwaSingleAlignment.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="289">
+              <caret line="37" column="5" selection-start-line="37" selection-start-column="5" selection-end-line="37" selection-end-column="5" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/main/java/com/github/flinkbwa/BwaAlignmentBase.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="132">
+              <caret line="21" column="53" selection-start-line="21" selection-start-column="53" selection-end-line="21" selection-end-column="53" />
+              <folding>
+                <element signature="imports" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -112,13 +133,13 @@
         <option value="$PROJECT_DIR$/src/main/java/com/github/flinkbwa/FlinkBWA.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/github/flinkbwa/BwaSeq.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/github/flinkbwa/BwaOptions.java" />
-        <option value="$PROJECT_DIR$/src/main/java/com/github/flinkbwa/BwaAlignmentBase.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/github/flinkbwa/utils/NativeUtils.java" />
         <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/src/main/native/Makefile.common" />
         <option value="$PROJECT_DIR$/src/main/java/com/github/flinkbwa/BwaJni.java" />
         <option value="$PROJECT_DIR$/src/main/native/bwa-master/Makefile" />
         <option value="$PROJECT_DIR$/src/main/java/com/github/flinkbwa/BwaInterpreter.java" />
+        <option value="$PROJECT_DIR$/src/main/java/com/github/flinkbwa/BwaAlignmentBase.java" />
       </list>
     </option>
   </component>
@@ -514,18 +535,18 @@
       <workItem from="1558613601607" duration="2934000" />
       <workItem from="1558967692812" duration="3909000" />
       <workItem from="1558976208600" duration="2078000" />
-      <workItem from="1559037088143" duration="192000" />
+      <workItem from="1559037088143" duration="1454000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="73480000" />
+    <option name="totallyTimeSpent" value="74693000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.23146747" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.23146747" />
       <window_info id="Structure" order="1" weight="0.25" />
       <window_info id="Nl-Palette" order="2" />
       <window_info id="Designer" order="3" />
@@ -535,7 +556,7 @@
       <window_info id="Capture Tool" order="7" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" weight="0.2487725" />
-      <window_info anchor="bottom" id="Run" order="2" weight="0.82160395" />
+      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.29787233" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -697,23 +718,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/github/flinkbwa/BwaAlignmentBase.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="177">
-          <caret line="127" column="22" selection-start-line="127" selection-start-column="12" selection-end-line="127" selection-end-column="22" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/github/flinkbwa/BwaSingleAlignment.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="94">
-          <caret line="37" column="5" selection-start-line="37" selection-start-column="5" selection-end-line="37" selection-end-column="5" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/github/flinkbwa/BwaInterpreter.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="10">
@@ -726,7 +730,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/github/flinkbwa/FlinkBWA.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="20">
+        <state relative-caret-position="245">
           <caret line="17" column="5" lean-forward="true" selection-start-line="17" selection-start-column="5" selection-end-line="17" selection-end-column="5" />
         </state>
       </provider>
@@ -735,6 +739,23 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="1071">
           <caret line="63" column="36" selection-start-line="63" selection-start-column="30" selection-end-line="63" selection-end-column="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/github/flinkbwa/BwaSingleAlignment.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="289">
+          <caret line="37" column="5" selection-start-line="37" selection-start-column="5" selection-end-line="37" selection-end-column="5" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/github/flinkbwa/BwaAlignmentBase.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="132">
+          <caret line="21" column="53" selection-start-line="21" selection-start-column="53" selection-end-line="21" selection-end-column="53" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

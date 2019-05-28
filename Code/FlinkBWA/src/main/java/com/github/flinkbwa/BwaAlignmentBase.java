@@ -12,13 +12,14 @@ import org.apache.flink.api.java.ExecutionEnvironment;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
  * Created by silvia on 10/04/19.
  */
-public class BwaAlignmentBase {
+public class BwaAlignmentBase implements Serializable {
     protected static final Log LOG = LogFactory.getLog(BwaAlignmentBase.class);
 
     protected String appName = "";

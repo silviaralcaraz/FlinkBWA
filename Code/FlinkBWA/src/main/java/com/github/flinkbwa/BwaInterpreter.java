@@ -369,7 +369,7 @@ public class BwaInterpreter {
                 outputFinalStream.close();
                 fs.close();
 
-                JobExecutionResult execute = environment.execute();
+                environment.execute("FlinkBWA");
             } catch (Exception e) {
                 e.printStackTrace();
                 LOG.error(e.toString());

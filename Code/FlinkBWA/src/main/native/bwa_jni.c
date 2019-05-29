@@ -21,12 +21,12 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
-#include "com_github_sparkbwa_BwaJni.h"
+#include "com_github_flinkbwa_BwaJni.h"
 
 int main(int argc,char *argv[]);
 
 
-JNIEXPORT jint JNICALL Java_com_github_sparkbwa_BwaJni_bwa_1jni (JNIEnv *env, jobject thisObj, jint argc, jobjectArray stringArray, jintArray lenStrings){
+JNIEXPORT jint JNICALL Java_com_github_flinkbwa_BwaJni_bwa_1jni (JNIEnv *env, jobject thisObj, jint argc, jobjectArray stringArray, jintArray lenStrings){
 
 	//Parte argumentos
 	char **argv;

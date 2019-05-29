@@ -128,7 +128,7 @@ public class BwaInterpreter {
      * @return A DataSet containing <Tuple2<Long Read ID, String Read>>
      */
     public static DataSet<Tuple2<Long, String>> loadFastq(ExecutionEnvironment environment, String pathToFastq) {
-        DataSet<String> fastqLines = environment.readTextFile(pathToFastq);
+        DataSet<String> fastqLines = environment.readTextFile("hdfs://" + pathToFastq);
         // If is a hdfs file:
         //environment.readCsvFile("hdfs:" + pathToFastq);
 

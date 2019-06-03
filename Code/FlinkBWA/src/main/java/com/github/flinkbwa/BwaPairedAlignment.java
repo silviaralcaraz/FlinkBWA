@@ -16,15 +16,13 @@
  */
 package com.github.flinkbwa;
 
-//import org.apache.hadoop.io.Text;
-//import org.apache.spark.SparkContext;
-//import org.apache.spark.api.java.function.Function2;
 import org.apache.flink.api.common.functions.MapPartitionFunction;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.util.Collector;
 import org.apache.flink.api.java.tuple.Tuple2;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
@@ -32,7 +30,7 @@ import java.util.Iterator;
  *
  * @author José M. Abuín
  */
-public class BwaPairedAlignment extends BwaAlignmentBase implements MapPartitionFunction<Tuple2<String, String>, Iterator<String>> {
+public class BwaPairedAlignment extends BwaAlignmentBase implements MapPartitionFunction<Tuple2<String, String>, ArrayList<String>> {
 
     /**
      * Constructor
@@ -50,7 +48,7 @@ public class BwaPairedAlignment extends BwaAlignmentBase implements MapPartition
      * @param collector A collector containing the sam file name generated
      * @throws Exception
      */
-    public void mapPartition(Iterable<Tuple2<String, String>> iterable, Collector<Iterator<String>> collector) throws Exception {
+    public void mapPartition(Iterable<Tuple2<String, String>> iterable, Collector<ArrayList<String>> collector) throws Exception {
         // STEP 1: Input fastq reads tmp file creation
         LOG.info("["+this.getClass().getName()+"] :: Tmp dir: " + this.tmpDir);
 

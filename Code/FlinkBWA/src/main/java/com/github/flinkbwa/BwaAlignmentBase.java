@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 /**
  * Created by silvia on 10/04/19.
@@ -37,7 +38,6 @@ public class BwaAlignmentBase implements Serializable {
     public BwaAlignmentBase(ExecutionEnvironment environment, Bwa bwaInterpreter) {
         this.appId = environment.getId().toString();
         this.appName = "FlinkBWA";
-        //FIXME: change tmpdir?
         this.tmpDir = "/tmp";
         //GlobalConfiguration.FLINK_CONF_FILENAME;
         //this.tmpDir = context.getLocalProperty("spark.local.dir");
@@ -118,7 +118,7 @@ public class BwaAlignmentBase implements Serializable {
      * @param outputSamFileName The output where the final results will be stored
      * @return An ArrayList containing all the file locations
      */
-    public Iterator<String> copyResults(String outputSamFileName) {
+    public ArrayList<String> copyResults(String outputSamFileName) {
         ArrayList<String> returnedValues = new ArrayList<String>();
         String outputDir = this.bwaInterpreter.getOutputHdfsDir();
 
@@ -142,7 +142,7 @@ public class BwaAlignmentBase implements Serializable {
 
         returnedValues.add(outputDir + "/" + outputSamFileName);
 
-        return returnedValues.iterator();
+        return returnedValues;
     }
 
     /**
@@ -159,7 +159,7 @@ public class BwaAlignmentBase implements Serializable {
      * @param fastqFileName2 Second of the FASTQ files
      * @return
      */
-    public Iterator<String> runAlignmentProcess(Long readStreamID, String fastqFileName1, String fastqFileName2) {
+    public ArrayList<String> runAlignmentProcess(Long readStreamID, String fastqFileName1, String fastqFileName2) {
         //The output filename (without the tmp directory)
         String outputSamFileName = this.getOutputSamFilename(readStreamID);
         this.alignReads(outputSamFileName, fastqFileName1, fastqFileName2);

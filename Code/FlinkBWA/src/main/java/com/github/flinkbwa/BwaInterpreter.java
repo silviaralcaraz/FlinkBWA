@@ -4,10 +4,9 @@ import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.flink.api.common.ExecutionConfig;
-import org.apache.flink.api.common.JobExecutionResult;
-import org.apache.flink.api.java.LocalEnvironment;
-import org.apache.flink.api.java.hadoop.mapred.utils.HadoopUtils;
+import org.apache.flink.api.common.functions.util.ListCollector;
 import org.apache.flink.api.java.utils.ParameterTool;
+import org.apache.flink.util.Collector;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.ContentSummary;
 import org.apache.hadoop.fs.FileSystem;
@@ -129,8 +128,6 @@ public class BwaInterpreter {
      */
     public static DataSet<Tuple2<Long, String>> loadFastq(ExecutionEnvironment environment, String pathToFastq) {
         DataSet<String> fastqLines = environment.readTextFile("hdfs://" + pathToFastq);
-        // If is a hdfs file:
-        //environment.readCsvFile("hdfs:" + pathToFastq);
 
         // Determine which FASTQ record the line belongs to.
         DataSet<Tuple2<Long, Tuple2<Long, String>>> fastqLinesByRecordNum
@@ -185,18 +182,18 @@ public class BwaInterpreter {
 
             /*
              * As in previous cases, the coalesce operation is not suitable
-			 * if we want to achieve the maximum speedup, so, repartition
-			 * is used.
-			 */
+             * if we want to achieve the maximum speedup, so, repartition
+             * is used.
+             */
             if ((numPartitions) <= options.getPartitionNumber()) {
-                LOG.info("["+this.getClass().getName()+"] :: Repartition with no sort");
-            }
-            else {
-                LOG.info("["+this.getClass().getName()+"] :: Repartition(Coalesce) with no sort");
+                LOG.info("[" + this.getClass().getName() + "] :: Repartition with no sort");
+            } else {
+                LOG.info("[" + this.getClass().getName() + "] :: Repartition(Coalesce) with no sort");
             }
             //reads = singleReadsKeyVal.repartition(options.getPartitionNumber()).values();
             readsDataSet = singleReadsKeyVal.partitionByRange(options.getPartitionNumber()).
                     map(new BwaMapFunctionValues());
+
         }
         long endTime = System.nanoTime();
         LOG.info("[" + this.getClass().getName() + "] :: End of sorting. Timing: " + endTime);
@@ -253,17 +250,16 @@ public class BwaInterpreter {
             LOG.info("[" + this.getClass().getName() + "] :: No sort with partitioning");
             //int numPartitions = pairedReadsRDD.partitions().size();
             int numPartitions = pairedReadsDataSet.getExecutionEnvironment().getParallelism();
-			/*
-			 * As in previous cases, the coalesce operation is not suitable
-			 * if we want to achieve the maximum speedup, so, repartition
-			 * is used.
-			 */
+            /*
+             * As in previous cases, the coalesce operation is not suitable
+             * if we want to achieve the maximum speedup, so, repartition
+             * is used.
+             */
 
             if ((numPartitions) <= options.getPartitionNumber()) {
-                LOG.info("["+this.getClass().getName()+"] :: Repartition with no sort");
-            }
-            else {
-                LOG.info("["+this.getClass().getName()+"] :: Repartition(Coalesce) with no sort");
+                LOG.info("[" + this.getClass().getName() + "] :: Repartition with no sort");
+            } else {
+                LOG.info("[" + this.getClass().getName() + "] :: Repartition(Coalesce) with no sort");
             }
 
             readsDataSet = pairedReadsDataSet.partitionByRange(options.getPartitionNumber()).
@@ -289,40 +285,59 @@ public class BwaInterpreter {
      * @return A list of strings containing the resulting sam files where the output alignments are stored
      */
     private List<String> MapPairedBwa(Bwa bwa, DataSet<Tuple2<String, String>> readsDataSet) {
-        // The mapPartitionsWithIndex is used over this RDD to perform the alignment.
+        List<String> result = new ArrayList<>();
         try {
-            Iterator iterator = readsDataSet.mapPartition(
-                    new BwaPairedAlignment(readsDataSet.getExecutionEnvironment(), bwa))
-                    .collect().iterator();
-            List samFilenamesList = IteratorUtils.toList(iterator);
-            // The resulting sam filenames are returned
-            return samFilenamesList;
+            // FIXME: java.lang.NullPointerException
+            List<ArrayList<String>> collectOutput = readsDataSet
+                    .mapPartition(new BwaPairedAlignment(readsDataSet.getExecutionEnvironment(), bwa))
+                    .collect();
+            System.out.println("## Testing ## [MapPairedBwa]: collectOutput Size: " + collectOutput.size() );
+            for(ArrayList<String> arrayList: collectOutput){
+                for(String string: arrayList){
+                    result.add(string);
+                }
+            }
+
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new ArrayList<String>();
-
+        return result;
     }
 
     /**
      * @param bwa          The Bwa object to use
-     * @param readsDataSet The RDD containing the paired reads
+     * @param readsDataSet The Dataset containing the reads
      * @return A list of strings containing the resulting sam files where the output alignments are stored
      */
     private List<String> MapSingleBwa(Bwa bwa, DataSet<String> readsDataSet) {
+        List<String> result = new ArrayList<>();
         try {
-            // The mapPartitionsWithIndex is used over this RDD to perform the alignment.
-            Iterator iterator = readsDataSet.mapPartition(
-                    new BwaSingleAlignment(readsDataSet.getExecutionEnvironment(), bwa))
-                    .collect().iterator();
-            List samFilenamesList = IteratorUtils.toList(iterator);
-            // The resulting sam filenames are returned
-            return samFilenamesList;
+            List<ArrayList<String>> collectOutput = readsDataSet
+                    .mapPartition(new BwaSingleAlignment(readsDataSet.getExecutionEnvironment(), bwa))
+                    .collect();
+
+            for(ArrayList<String> arrayList: collectOutput){
+                for(String string: arrayList){
+                    result.add(string);
+                }
+            }
+
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new ArrayList<String>();
+        return result;
     }
+
+    /*
+    * 	private List<String> MapSingleBwa(Bwa bwa, JavaRDD<String> readsRDD) {
+		// The mapPartitionsWithIndex is used over this RDD to perform the alignment. The resulting sam filenames are returned
+		return readsRDD
+			.mapPartitionsWithIndex(new BwaSingleAlignment(readsRDD.context(), bwa), true)
+			.collect();
+	}
+    * */
 
     /**
      * Runs BWA with the specified options
@@ -333,11 +348,13 @@ public class BwaInterpreter {
     public void runBwa() {
         LOG.info("[" + this.getClass().getName() + "] :: Starting BWA");
         Bwa bwa = new Bwa(this.options);
-        List<String> returnedValues;
+        List<String> returnedValues = null;
 
         if (bwa.isPairedReads()) {
             DataSet<Tuple2<String, String>> readsDataSet = handlePairedReadsSorting();
+            System.out.println("## Testing ## [runBwa]: Enter in MapPairedBwa");
             returnedValues = MapPairedBwa(bwa, readsDataSet);
+            System.out.println("## Testing ## [runBwa]: ReturnedValuesSize: " + returnedValues.size() );
         } else {
             DataSet<String> readsDataSet = handleSingleReadsSorting();
             returnedValues = MapSingleBwa(bwa, readsDataSet);
@@ -351,7 +368,7 @@ public class BwaInterpreter {
                 FSDataOutputStream outputFinalStream = fs.create(finalHdfsOutputFile, true);
 
                 // We iterate over the resulting files in HDFS and agregate them into only one file.
-                for (int i = 0; i < returnedValues.size(); i++) {
+                for (int i = 0; i< returnedValues.size(); i++) {
                     LOG.info("JMAbuin:: FlinkBWA :: Returned file ::" + returnedValues.get(i));
                     BufferedReader br = new BufferedReader(new InputStreamReader(fs.open(new Path(returnedValues.get(i)))));
                     String line;
@@ -368,20 +385,22 @@ public class BwaInterpreter {
                 }
                 outputFinalStream.close();
                 fs.close();
-
-                environment.execute("FlinkBWA");
             } catch (Exception e) {
                 e.printStackTrace();
                 LOG.error(e.toString());
             }
+        }else{
+            try {
+                environment.execute("FlinkBWA");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
-
     }
 
     /**
      * Procedure to init the BWAInterpreter configuration parameters
      */
-    //FIXME: fix it if not works fine
     public void initInterpreter() {
         //If ctx is null, this procedure is being called from the Linux console with Spark
         if (this.environment == null) {

@@ -8,7 +8,7 @@ import org.apache.flink.api.java.tuple.Tuple2;
  */
 public class BwaMapFunctionPairValues implements MapFunction<Tuple2<Long, Tuple2<String, String>>, Tuple2<String, String>> {
 
-    public Tuple2<String, String> map(Tuple2<Long, Tuple2<String, String>> longTuple2Tuple2) throws Exception {
-        return longTuple2Tuple2.f1;
+    public Tuple2<String, String> map(Tuple2<Long, Tuple2<String, String>> input) throws Exception {
+        return Tuple2.of(input.f1.f0, input.f1.f1);
     }
 }

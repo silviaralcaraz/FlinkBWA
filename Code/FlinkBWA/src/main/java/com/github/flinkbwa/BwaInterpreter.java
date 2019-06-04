@@ -1,12 +1,10 @@
 package com.github.flinkbwa;
 
-import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.flink.api.common.ExecutionConfig;
-import org.apache.flink.api.common.functions.util.ListCollector;
+import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.utils.ParameterTool;
-import org.apache.flink.util.Collector;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.ContentSummary;
 import org.apache.hadoop.fs.FileSystem;
@@ -23,24 +21,17 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
  * BWAInterpreter class
  */
 public class BwaInterpreter {
-    //private JavaRDD<Tuple2<String, String>> dataRDD; // Nunca se usa en SparkBWA
-    //private SparkConf sparkConf; 	// The Spark Configuration to use
-    //private JavaSparkContext 	ctx; // The Java Spark Context
-    //private String inputTmpFileName; // We do not have tmp files in HDFS
     private static final Log LOG = LogFactory.getLog(BwaInterpreter.class); // The LOG
     private Configuration conf; // Global Configuration
-    private org.apache.flink.configuration.Configuration flinkConf; // The Flink Configuration to use
-    private ExecutionConfig executionConf; // Execution configuration
-    private ParameterTool parameters; // Flink job parameters
     private ExecutionEnvironment environment = ExecutionEnvironment.getExecutionEnvironment(); // Flink environment
     private BwaOptions options; // Options for BWA
+    private ExecutionConfig executionConf; // Execution configuration
     private long totalInputLength;
     private long blocksize;
 
@@ -210,17 +201,19 @@ public class BwaInterpreter {
     private DataSet<Tuple2<String, String>> handlePairedReadsSorting() {
         DataSet<Tuple2<String, String>> readsDataSet = null;
         long startTime = System.nanoTime();
-        LOG.info("[" + this.getClass().getName() + "] ::Not sorting in HDFS. Timing: " + startTime);
+        LOG.info("[" + this.getClass().getName() + "] :: Not sorting in HDFS. Timing: " + startTime);
 
-        // Read the two FASTQ files from HDFS using the loadFastq method. After that, a Spark join operation is performed
+        // Read the two FASTQ files from HDFS using the loadFastq method.
         DataSet<Tuple2<Long, String>> datasetTmp1 = loadFastq(this.environment, options.getInputPath());
         DataSet<Tuple2<Long, String>> datasetTmp2 = loadFastq(this.environment, options.getInputPath2());
+
+        // Flink join operation to combine the datasets.
         DataSet<Tuple2<Long, Tuple2<String, String>>> pairedReadsDataSet = datasetTmp1.join(datasetTmp2).
                 where(new FASTQKeySelector()).equalTo(new FASTQKeySelector()).map(new FASTQPairMapOperator());
 
         /*
         En flink no existe esta funcion, el programa debe ser recargado para actualizar los datos
-        FIXME: delete if is not necessary (I think in Flink doesn't exist) || change by the right methods
+        //TODO: delete old code
         datasetTmp1.unpersist();
         datasetTmp2.unpersist();
         */
@@ -243,6 +236,8 @@ public class BwaInterpreter {
         // No Sort with no partitioning
         else if ((options.getPartitionNumber() == 0) && (!options.isSortFastqReads())) {
             LOG.info("[" + this.getClass().getName() + "] :: No sort and no partitioning");
+            // So, we only transform the Dataset<Tuple2<Long, Tuple2<String, String>>> into a Dataset<Tuple2<String, String>>
+            readsDataSet = pairedReadsDataSet.map(new BwaMapFunctionPairValues());
         }
 
         // No Sort with partitioning
@@ -291,9 +286,9 @@ public class BwaInterpreter {
             List<ArrayList<String>> collectOutput = readsDataSet
                     .mapPartition(new BwaPairedAlignment(readsDataSet.getExecutionEnvironment(), bwa))
                     .collect();
-            System.out.println("## Testing ## [MapPairedBwa]: collectOutput Size: " + collectOutput.size() );
-            for(ArrayList<String> arrayList: collectOutput){
-                for(String string: arrayList){
+
+            for (ArrayList<String> arrayList : collectOutput) {
+                for (String string : arrayList) {
                     result.add(string);
                 }
             }
@@ -317,8 +312,8 @@ public class BwaInterpreter {
                     .mapPartition(new BwaSingleAlignment(readsDataSet.getExecutionEnvironment(), bwa))
                     .collect();
 
-            for(ArrayList<String> arrayList: collectOutput){
-                for(String string: arrayList){
+            for (ArrayList<String> arrayList : collectOutput) {
+                for (String string : arrayList) {
                     result.add(string);
                 }
             }
@@ -329,15 +324,6 @@ public class BwaInterpreter {
         }
         return result;
     }
-
-    /*
-    * 	private List<String> MapSingleBwa(Bwa bwa, JavaRDD<String> readsRDD) {
-		// The mapPartitionsWithIndex is used over this RDD to perform the alignment. The resulting sam filenames are returned
-		return readsRDD
-			.mapPartitionsWithIndex(new BwaSingleAlignment(readsRDD.context(), bwa), true)
-			.collect();
-	}
-    * */
 
     /**
      * Runs BWA with the specified options
@@ -352,9 +338,8 @@ public class BwaInterpreter {
 
         if (bwa.isPairedReads()) {
             DataSet<Tuple2<String, String>> readsDataSet = handlePairedReadsSorting();
-            System.out.println("## Testing ## [runBwa]: Enter in MapPairedBwa");
             returnedValues = MapPairedBwa(bwa, readsDataSet);
-            System.out.println("## Testing ## [runBwa]: ReturnedValuesSize: " + returnedValues.size() );
+            System.out.println("## Testing ## [runBwa]: ReturnedValuesSize: " + returnedValues.size());
         } else {
             DataSet<String> readsDataSet = handleSingleReadsSorting();
             returnedValues = MapSingleBwa(bwa, readsDataSet);
@@ -368,7 +353,7 @@ public class BwaInterpreter {
                 FSDataOutputStream outputFinalStream = fs.create(finalHdfsOutputFile, true);
 
                 // We iterate over the resulting files in HDFS and agregate them into only one file.
-                for (int i = 0; i< returnedValues.size(); i++) {
+                for (int i = 0; i < returnedValues.size(); i++) {
                     LOG.info("JMAbuin:: FlinkBWA :: Returned file ::" + returnedValues.get(i));
                     BufferedReader br = new BufferedReader(new InputStreamReader(fs.open(new Path(returnedValues.get(i)))));
                     String line;
@@ -389,7 +374,7 @@ public class BwaInterpreter {
                 e.printStackTrace();
                 LOG.error(e.toString());
             }
-        }else{
+        } else {
             try {
                 environment.execute("FlinkBWA");
             } catch (Exception e) {

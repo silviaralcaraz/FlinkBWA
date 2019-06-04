@@ -26,9 +26,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 /**
- * Class to perform the alignment over a split from the RDD of paired reads
- *
- * @author José M. Abuín
+ * Class to perform the alignment over a split from the Dataset of paired reads
  */
 public class BwaPairedAlignment extends BwaAlignmentBase implements MapPartitionFunction<Tuple2<String, String>, ArrayList<String>> {
 
@@ -44,25 +42,25 @@ public class BwaPairedAlignment extends BwaAlignmentBase implements MapPartition
     /**
      * Code to run in each one of the mappers. This is, the alignment with the corresponding entry
      * data The entry data has to be written into the local filesystem
-     * @param iterable An iterator containing the values in this Dataset
-     * @param collector A collector containing the sam file name generated
+     * @param input An iterator containing the values in this Dataset
+     * @param output A collector containing the sam file name generated
      * @throws Exception
      */
-    public void mapPartition(Iterable<Tuple2<String, String>> iterable, Collector<ArrayList<String>> collector) throws Exception {
+    public void mapPartition(Iterable<Tuple2<String, String>> input, Collector<ArrayList<String>> output) throws Exception {
         // STEP 1: Input fastq reads tmp file creation
         LOG.info("["+this.getClass().getName()+"] :: Tmp dir: " + this.tmpDir);
 
         String fastqFileName1;
         String fastqFileName2;
-        Long StreamID = System.currentTimeMillis();
+        Long id = System.currentTimeMillis();
 
         if(this.tmpDir.lastIndexOf("/") == this.tmpDir.length()-1) {
-            fastqFileName1 = this.tmpDir + this.appId + "-Dataset" + StreamID + "_1";
-            fastqFileName2 = this.tmpDir + this.appId + "-Dataset" + StreamID + "_2";
+            fastqFileName1 = this.tmpDir + this.appId + "-Dataset" + id + "_1";
+            fastqFileName2 = this.tmpDir + this.appId + "-Dataset" + id + "_2";
         }
         else {
-            fastqFileName1 = this.tmpDir + "/" + this.appId + "-Dataset" + StreamID + "_1";
-            fastqFileName2 = this.tmpDir + "/" + this.appId + "-Dataset" + StreamID + "_2";
+            fastqFileName1 = this.tmpDir + "/" + this.appId + "-Dataset" + id + "_1";
+            fastqFileName2 = this.tmpDir + "/" + this.appId + "-Dataset" + id + "_2";
         }
 
         LOG.info("["+this.getClass().getName()+"] :: Writing file: " + fastqFileName1);
@@ -85,11 +83,12 @@ public class BwaPairedAlignment extends BwaAlignmentBase implements MapPartition
             bw1 = new BufferedWriter(new OutputStreamWriter(fos1));
             bw2 = new BufferedWriter(new OutputStreamWriter(fos2));
 
-            Iterator<Tuple2<String, String>> data = iterable.iterator();
+            /*
+            Iterator<Tuple2<String, String>> iterator = input.iterator();
             Tuple2<String, String> newFastqRead;
 
-            while (data.hasNext()) {
-                newFastqRead = data.next();
+            while (iterator.hasNext()) {
+                newFastqRead = iterator.next();
 
                 bw1.write(newFastqRead.f0);
                 bw1.newLine();
@@ -97,12 +96,23 @@ public class BwaPairedAlignment extends BwaAlignmentBase implements MapPartition
                 bw2.write(newFastqRead.f1);
                 bw2.newLine();
             }
+            */
+
+            for(Tuple2<String, String> tuple: input){
+                bw1.write(tuple.f0);
+                bw1.newLine();
+
+                bw2.write(tuple.f1);
+                bw2.newLine();
+            }
 
             bw1.close();
             bw2.close();
 
+            input = null;
+
             // This is where the actual local alignment takes place
-            collector.collect(this.runAlignmentProcess(StreamID, fastqFileName1, fastqFileName2));
+            output.collect(this.runAlignmentProcess(id, fastqFileName1, fastqFileName2));
 
             // Delete temporary files, as they have now been copied to the output directory
             LOG.info("["+this.getClass().getName()+"] :: Deleting file: " + fastqFileName1);

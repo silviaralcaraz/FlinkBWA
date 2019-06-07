@@ -4,6 +4,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.common.functions.MapFunction;
+import org.apache.flink.api.common.functions.Partitioner;
 import org.apache.flink.api.java.utils.ParameterTool;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.ContentSummary;
@@ -124,7 +125,8 @@ public class BwaInterpreter {
         DataSet<Tuple2<Long, Tuple2<Long, String>>> fastqLinesByRecordNum
                 = DataSetUtils.zipWithIndex(fastqLines).map(new FASTQRecordGrouper());
 
-        // Group group the lines which belongs to the same record, and concatinate them into a record.
+        // Group the lines which belongs to the same record, and concatinate them into a record.
+        // Group by the first field of the tuple (Long key)
         return fastqLinesByRecordNum.groupBy(0).reduceGroup(new FASTQRecordCreator());
     }
 
@@ -143,34 +145,28 @@ public class BwaInterpreter {
 
         // Sort in memory with no partitioning
         if ((options.getPartitionNumber() == 0) && (options.isSortFastqReads())) {
-            readsDataSet = singleReadsKeyVal.sortPartition(0, Order.ASCENDING).map(new BwaMapFunctionValues());
-            //TODO: delete next line if the previous works.
-            //readsDataSet = singleReadsKeyVal.sortPartition(0, Order.ASCENDING).setParallelism(1).map(new BwaMapFunctionValues());
+            readsDataSet = singleReadsKeyVal.sortPartition(new FASTQKeySelector(), Order.ASCENDING).map(new BwaMapFunctionValues());
             LOG.info("[" + this.getClass().getName() + "] :: Repartition with sort");
         }
 
         // Sort in memory with partitioning
         else if ((options.getPartitionNumber() != 0) && (options.isSortFastqReads())) {
             // First, the partition operation is performed, after that, a sort.
-            readsDataSet = singleReadsKeyVal.partitionByRange(0).sortPartition(0, Order.ASCENDING).
-                    map(new BwaMapFunctionValues());
-            LOG.info("[" + this.getClass().getName() + "] :: Sorting in memory without partitioning");
+            readsDataSet = singleReadsKeyVal.rebalance().setParallelism(options.getPartitionNumber()).map(new BwaMapFunctionValues());
+            // About rebalance operation: partitions elements round-robin, creating equal load per partition.
+            LOG.info("[" + this.getClass().getName() + "] :: Sorting in memory with partitioning");
         }
 
         // No Sort with no partitioning
         else if ((options.getPartitionNumber() == 0) && (!options.isSortFastqReads())) {
-            LOG.info("[" + this.getClass().getName() + "] :: No sort and no partitioning");
             readsDataSet = singleReadsKeyVal.map(new BwaMapFunctionValues());
+            LOG.info("[" + this.getClass().getName() + "] :: No sort and no partitioning");
         }
 
         // No Sort with partitioning
         else {
             LOG.info("[" + this.getClass().getName() + "] :: No sort with partitioning");
-            readsDataSet = singleReadsKeyVal.partitionByRange(0).map(new BwaMapFunctionValues());
-            //FIXME: if level of parallelism is not the same as partitions size
-            //int numPartitions = singleReadsKeyVal.partitions().size();
             int numPartitions = singleReadsKeyVal.getExecutionEnvironment().getParallelism();
-
             /*
              * As in previous cases, the coalesce operation is not suitable
              * if we want to achieve the maximum speedup, so, repartition
@@ -182,9 +178,7 @@ public class BwaInterpreter {
                 LOG.info("[" + this.getClass().getName() + "] :: Repartition(Coalesce) with no sort");
             }
             //reads = singleReadsKeyVal.repartition(options.getPartitionNumber()).values();
-            readsDataSet = singleReadsKeyVal.partitionByRange(options.getPartitionNumber()).
-                    map(new BwaMapFunctionValues());
-
+            readsDataSet = singleReadsKeyVal.rebalance().setParallelism(options.getPartitionNumber()).map(new BwaMapFunctionValues());
         }
         long endTime = System.nanoTime();
         LOG.info("[" + this.getClass().getName() + "] :: End of sorting. Timing: " + endTime);
@@ -198,6 +192,8 @@ public class BwaInterpreter {
      *
      * @return A JavaRDD containing grouped reads from the paired FASTQ files
      */
+
+    @SuppressWarnings("Duplicates")
     private DataSet<Tuple2<String, String>> handlePairedReadsSorting() {
         DataSet<Tuple2<String, String>> readsDataSet = null;
         long startTime = System.nanoTime();
@@ -210,7 +206,6 @@ public class BwaInterpreter {
         // Flink join operation to combine the datasets.
         DataSet<Tuple2<Long, Tuple2<String, String>>> pairedReadsDataSet = datasetTmp1.join(datasetTmp2).
                 where(new FASTQKeySelector()).equalTo(new FASTQKeySelector()).map(new FASTQPairMapOperator());
-
         /*
         En flink no existe esta funcion, el programa debe ser recargado para actualizar los datos
         //TODO: delete old code
@@ -220,22 +215,22 @@ public class BwaInterpreter {
 
         // Sort in memory with no partitioning
         if ((options.getPartitionNumber() == 0) && (options.isSortFastqReads())) {
-            readsDataSet = pairedReadsDataSet.sortPartition(0, Order.ASCENDING).
-                    map(new BwaMapFunctionPairValues());
+            readsDataSet = pairedReadsDataSet.sortPartition(new FASTQKeySelectorPaired(), Order.ASCENDING).map(new BwaMapFunctionPairValues());
             LOG.info("[" + this.getClass().getName() + "] :: Sorting in memory without partitioning");
         }
 
         // Sort in memory with partitioning
         else if ((options.getPartitionNumber() != 0) && (options.isSortFastqReads())) {
             //pairedReadsDataSet = pairedReadsDataSet.repartition(options.getPartitionNumber());
-            readsDataSet = pairedReadsDataSet.partitionByRange(options.getPartitionNumber()).sortPartition(0, Order.ASCENDING).
-                    map(new BwaMapFunctionPairValues());
+            readsDataSet = pairedReadsDataSet.rebalance().setParallelism(options.getPartitionNumber()).
+                    sortPartition(new FASTQKeySelectorPaired(), Order.ASCENDING).map(new BwaMapFunctionPairValues());
             LOG.info("[" + this.getClass().getName() + "] :: Repartition with sort");
         }
 
         // No Sort with no partitioning
         else if ((options.getPartitionNumber() == 0) && (!options.isSortFastqReads())) {
             LOG.info("[" + this.getClass().getName() + "] :: No sort and no partitioning");
+            // FIXME: not work with -r option. slots deteleted ?? --> Possible solutions: define slotSharingGroup("name") | AsyncDataStream.orderedWait (streaming)
             // So, we only transform the Dataset<Tuple2<Long, Tuple2<String, String>>> into a Dataset<Tuple2<String, String>>
             readsDataSet = pairedReadsDataSet.map(new BwaMapFunctionPairValues());
         }
@@ -243,27 +238,20 @@ public class BwaInterpreter {
         // No Sort with partitioning
         else {
             LOG.info("[" + this.getClass().getName() + "] :: No sort with partitioning");
-            //int numPartitions = pairedReadsRDD.partitions().size();
             int numPartitions = pairedReadsDataSet.getExecutionEnvironment().getParallelism();
             /*
              * As in previous cases, the coalesce operation is not suitable
              * if we want to achieve the maximum speedup, so, repartition
              * is used.
              */
-
             if ((numPartitions) <= options.getPartitionNumber()) {
                 LOG.info("[" + this.getClass().getName() + "] :: Repartition with no sort");
             } else {
                 LOG.info("[" + this.getClass().getName() + "] :: Repartition(Coalesce) with no sort");
             }
 
-            readsDataSet = pairedReadsDataSet.partitionByRange(options.getPartitionNumber()).
-                    map(new BwaMapFunctionPairValues());
-            /*
-            readsRDD = pairedReadsRDD
-                    .repartition(options.getPartitionNumber())
-                    .values();
-             */
+            readsDataSet = pairedReadsDataSet.rebalance().setParallelism(options.getPartitionNumber()).map(new BwaMapFunctionPairValues());
+            // readsRDD = pairedReadsRDD.repartition(options.getPartitionNumber()).values();
         }
         long endTime = System.nanoTime();
         LOG.info("[" + this.getClass().getName() + "] :: End of sorting. Timing: " + endTime);
@@ -282,7 +270,6 @@ public class BwaInterpreter {
     private List<String> MapPairedBwa(Bwa bwa, DataSet<Tuple2<String, String>> readsDataSet) {
         List<String> result = new ArrayList<>();
         try {
-            // FIXME: java.lang.NullPointerException
             List<ArrayList<String>> collectOutput = readsDataSet
                     .mapPartition(new BwaPairedAlignment(readsDataSet.getExecutionEnvironment(), bwa))
                     .collect();
@@ -354,7 +341,7 @@ public class BwaInterpreter {
 
                 // We iterate over the resulting files in HDFS and agregate them into only one file.
                 for (int i = 0; i < returnedValues.size(); i++) {
-                    LOG.info("JMAbuin:: FlinkBWA :: Returned file ::" + returnedValues.get(i));
+                    LOG.info("FlinkBWA :: Returned file ::" + returnedValues.get(i));
                     BufferedReader br = new BufferedReader(new InputStreamReader(fs.open(new Path(returnedValues.get(i)))));
                     String line;
                     line = br.readLine();
@@ -374,13 +361,13 @@ public class BwaInterpreter {
                 e.printStackTrace();
                 LOG.error(e.toString());
             }
-        } else {
+        } /*else {
             try {
                 environment.execute("FlinkBWA");
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
+        }*/
     }
 
     /**
@@ -392,44 +379,18 @@ public class BwaInterpreter {
             String sorting;
             //Check for the options to perform the sort reads
             if (options.isSortFastqReads()) {
-                sorting = "SortSpark";
+                sorting = "SortFlink";
             } else if (options.isSortFastqReadsHdfs()) {
                 sorting = "SortHDFS";
             } else {
                 sorting = "NoSort";
             }
-
-            //The application name is set
-            /*
-            this.sparkConf = new SparkConf().setAppName("SparkBWA_"
-                    + options.getInputPath().split("/")[options.getInputPath().split("/").length - 1]
-                    + "-"
-                    + options.getPartitionNumber()
-                    + "-"
-                    + sorting);
-            */
-            /*this.flinkConf = new org.apache.flink.configuration.Configuration();
-            this.flinkConf.setString("AppName", "FlinkBWA_"
-                    + options.getInputPath().split("/")[options.getInputPath().split("/").length - 1]
-                    + "-"
-                    + options.getPartitionNumber()
-                    + "-"
-                    + sorting);
-
-            //The ctx is created from scratch
-            this.environment = new LocalEnvironment(this.flinkConf);*/
-            //this.ctx = new JavaSparkContext(this.sparkConf);
             this.environment = ExecutionEnvironment.getExecutionEnvironment();
-        }
-        //Otherwise, the procedure is being called from the Spark shell
-        else {
-            //this.sparkConf = this.ctx.getConf();
+        } else {
             this.executionConf = this.environment.getConfig();
         }
         //The Hadoop configuration is obtained
         this.conf = new Configuration();
-        //this.conf = this.ctx.hadoopConfiguration();
-        //this.conf = HadoopUtils.getHadoopConfiguration(); // Need hadoop especification in flink-conf.yaml (?)
 
         //The block size
         this.blocksize = this.conf.getLong("dfs.blocksize", 134217728);

@@ -4,8 +4,14 @@ import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
 
 /**
+ * Class to transform a given Tuple2.
+ * @input Dataset<Tuple2<Long, Tuple2<String, String>>
+ * @result Dataset<Tuple2<String, String>>
+ * @throws Exception
+ *
  * Created by silvia on 15/04/19.
  */
+
 public class BwaMapFunctionPairValues implements MapFunction<Tuple2<Long, Tuple2<String, String>>, Tuple2<String, String>> {
 
     public Tuple2<String, String> map(Tuple2<Long, Tuple2<String, String>> input) throws Exception {

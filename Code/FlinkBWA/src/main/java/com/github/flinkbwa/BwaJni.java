@@ -4,7 +4,9 @@ import cz.adamh.utils.NativeUtils;
 import java.io.IOException;
 
 /**
- * Class that calls BWA functions by means of JNI
+ * Class that calls BWA functions by means of JNI.
+ *
+ * Created by silvia on 10/04/19.
  */
 public class BwaJni {
     static {

@@ -4,7 +4,7 @@ import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
 
 /**
- * Function to combine 2 Dataset<Tuple2<Long, String>>.
+ * Class to combine 2 Dataset<Tuple2<Long, String>>.
  * @return A Tuple2<Long, Tuple2<String, String>> which contains the common key of the datasets and the strings of the both.
  *
  * Created by silvia on 23/04/19.

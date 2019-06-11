@@ -2,16 +2,14 @@ package com.github.flinkbwa;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.flink.api.common.ExecutionConfig;
-import org.apache.flink.api.common.functions.MapFunction;
-import org.apache.flink.api.common.functions.Partitioner;
-import org.apache.flink.api.java.utils.ParameterTool;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.ContentSummary;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.FSDataOutputStream;
 
+import org.apache.flink.api.common.ExecutionConfig;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.common.operators.Order;
@@ -21,11 +19,14 @@ import org.apache.flink.api.java.utils.DataSetUtils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * BWAInterpreter class
+ * This class communicates Flink with BWA.
+ *
+ * Created by silvia on 10/04/19.
  */
 public class BwaInterpreter {
     private static final Log LOG = LogFactory.getLog(BwaInterpreter.class); // The LOG
@@ -37,12 +38,12 @@ public class BwaInterpreter {
     private long blocksize;
 
     /**
-     * Constructor to build the BWAInterpreter object from the Flink shell When creating a
-     * BWAInterpreter object from the Flink shell, the BwaOptions and the Spark Context objects need
-     * to be passed as argument.
+     * Constructor to build the BWAInterpreter object from the Flink shell.
+     * When creating a BWAInterpreter object from the Flink shell,
+     * the BwaOptions and the Flink environment object need to be passed as argument.
      *
      * @param optionsFromShell     The BwaOptions object initialized with the user options
-     * @param executionEnvironment The Spark Context from the Spark Shell. Usually "sc"
+     * @param executionEnvironment The Flink environment from the Flink Shell.
      * @return The BWAInterpreter object with its options initialized.
      */
     public BwaInterpreter(BwaOptions optionsFromShell, ExecutionEnvironment executionEnvironment) {
@@ -54,7 +55,7 @@ public class BwaInterpreter {
     /**
      * Constructor to build the BWAInterpreter object from within FlinkBWA
      *
-     * @param args Arguments got from Linux console when launching SparkBWA with Spark
+     * @param args Arguments got from Linux console when launching FlinkBWA with Flink
      * @return The BWAInterpreter object with its options initialized.
      */
     public BwaInterpreter(String[] args) {
@@ -114,7 +115,7 @@ public class BwaInterpreter {
     /**
      * Function to load a FASTQ file from HDFS into a DataSet<Tuple2<Long, String>
      *
-     * @param environment The JavaSparkContext to use
+     * @param environment The Flink environment to use
      * @param pathToFastq The path to the FASTQ file
      * @return A DataSet containing <Tuple2<Long Read ID, String Read>>
      */
@@ -125,8 +126,7 @@ public class BwaInterpreter {
         DataSet<Tuple2<Long, Tuple2<Long, String>>> fastqLinesByRecordNum
                 = DataSetUtils.zipWithIndex(fastqLines).map(new FASTQRecordGrouper());
 
-        // Group the lines which belongs to the same record, and concatinate them into a record.
-        // Group by the first field of the tuple (Long key)
+        // Group (by the first field of the tuple) the lines which belongs to the same record, and concatenate them into a record.
         return fastqLinesByRecordNum.groupBy(0).reduceGroup(new FASTQRecordCreator());
     }
 
@@ -177,7 +177,6 @@ public class BwaInterpreter {
             } else {
                 LOG.info("[" + this.getClass().getName() + "] :: Repartition(Coalesce) with no sort");
             }
-            //reads = singleReadsKeyVal.repartition(options.getPartitionNumber()).values();
             readsDataSet = singleReadsKeyVal.rebalance().setParallelism(options.getPartitionNumber()).map(new BwaMapFunctionValues());
         }
         long endTime = System.nanoTime();
@@ -192,8 +191,6 @@ public class BwaInterpreter {
      *
      * @return A JavaRDD containing grouped reads from the paired FASTQ files
      */
-
-    @SuppressWarnings("Duplicates")
     private DataSet<Tuple2<String, String>> handlePairedReadsSorting() {
         DataSet<Tuple2<String, String>> readsDataSet = null;
         long startTime = System.nanoTime();
@@ -206,12 +203,6 @@ public class BwaInterpreter {
         // Flink join operation to combine the datasets.
         DataSet<Tuple2<Long, Tuple2<String, String>>> pairedReadsDataSet = datasetTmp1.join(datasetTmp2).
                 where(new FASTQKeySelector()).equalTo(new FASTQKeySelector()).map(new FASTQPairMapOperator());
-        /*
-        En flink no existe esta funcion, el programa debe ser recargado para actualizar los datos
-        //TODO: delete old code
-        datasetTmp1.unpersist();
-        datasetTmp2.unpersist();
-        */
 
         // Sort in memory with no partitioning
         if ((options.getPartitionNumber() == 0) && (options.isSortFastqReads())) {
@@ -221,7 +212,6 @@ public class BwaInterpreter {
 
         // Sort in memory with partitioning
         else if ((options.getPartitionNumber() != 0) && (options.isSortFastqReads())) {
-            //pairedReadsDataSet = pairedReadsDataSet.repartition(options.getPartitionNumber());
             readsDataSet = pairedReadsDataSet.rebalance().setParallelism(options.getPartitionNumber()).
                     sortPartition(new FASTQKeySelectorPaired(), Order.ASCENDING).map(new BwaMapFunctionPairValues());
             LOG.info("[" + this.getClass().getName() + "] :: Repartition with sort");
@@ -230,7 +220,6 @@ public class BwaInterpreter {
         // No Sort with no partitioning
         else if ((options.getPartitionNumber() == 0) && (!options.isSortFastqReads())) {
             LOG.info("[" + this.getClass().getName() + "] :: No sort and no partitioning");
-            // FIXME: not work with -r option. slots deteleted ?? --> Possible solutions: define slotSharingGroup("name") | AsyncDataStream.orderedWait (streaming)
             // So, we only transform the Dataset<Tuple2<Long, Tuple2<String, String>>> into a Dataset<Tuple2<String, String>>
             readsDataSet = pairedReadsDataSet.map(new BwaMapFunctionPairValues());
         }
@@ -251,7 +240,6 @@ public class BwaInterpreter {
             }
 
             readsDataSet = pairedReadsDataSet.rebalance().setParallelism(options.getPartitionNumber()).map(new BwaMapFunctionPairValues());
-            // readsRDD = pairedReadsRDD.repartition(options.getPartitionNumber()).values();
         }
         long endTime = System.nanoTime();
         LOG.info("[" + this.getClass().getName() + "] :: End of sorting. Timing: " + endTime);
@@ -326,7 +314,6 @@ public class BwaInterpreter {
         if (bwa.isPairedReads()) {
             DataSet<Tuple2<String, String>> readsDataSet = handlePairedReadsSorting();
             returnedValues = MapPairedBwa(bwa, readsDataSet);
-            System.out.println("## Testing ## [runBwa]: ReturnedValuesSize: " + returnedValues.size());
         } else {
             DataSet<String> readsDataSet = handleSingleReadsSorting();
             returnedValues = MapSingleBwa(bwa, readsDataSet);
@@ -361,20 +348,14 @@ public class BwaInterpreter {
                 e.printStackTrace();
                 LOG.error(e.toString());
             }
-        } /*else {
-            try {
-                environment.execute("FlinkBWA");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }*/
+        }
     }
 
     /**
      * Procedure to init the BWAInterpreter configuration parameters
      */
     public void initInterpreter() {
-        //If ctx is null, this procedure is being called from the Linux console with Spark
+        //If ctx is null, this procedure is being called from the Linux console with Flink
         if (this.environment == null) {
             String sorting;
             //Check for the options to perform the sort reads

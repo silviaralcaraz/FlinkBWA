@@ -1,19 +1,3 @@
-/**
- * Copyright 2016 José Manuel Abuín Mosquera <josemanuel.abuin@usc.es>
- * <p>
- * <p>This file is part of SparkBWA.
- * <p>
- * <p>SparkBWA is free software: you can redistribute it and/or modify it under the terms of the GNU
- * General Public License as published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * <p>
- * <p>SparkBWA is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
- * <p>
- * <p>You should have received a copy of the GNU General Public License along with SparkBWA. If not,
- * see <http://www.gnu.org/licenses/>.
- */
 package com.github.flinkbwa;
 
 import java.io.*;
@@ -26,6 +10,8 @@ import org.apache.flink.util.Collector;
 
 /**
  * Class to perform the alignment over a split from the Dataset of single reads
+ *
+ * Created by silvia on 10/04/19.
  */
 public class BwaSingleAlignment extends BwaAlignmentBase implements MapPartitionFunction<String, ArrayList<String>> {
     /**
@@ -40,9 +26,9 @@ public class BwaSingleAlignment extends BwaAlignmentBase implements MapPartition
 
     /**
      * Code to run in each one of the mappers. This is, the alignment with the corresponding entry
-     * data The entry data has to be written into the local filesystem
+     * data. The entry data has to be written into the local filesystem
      *
-     * @param input  An iterator contanining the values in this Dataset
+     * @param input  An iterator containing the values in this Dataset
      * @param output An collector containing the sam file name generated
      * @throws Exception
      */

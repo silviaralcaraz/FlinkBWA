@@ -3,9 +3,12 @@ package com.github.flinkbwa;
 import org.apache.commons.cli.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import java.util.*;
 
 /**
+ * Class to parse and set the Bwa options.
+ *
  * Created by silvia on 10/04/19.
  */
 public class BwaOptions {
@@ -28,17 +31,14 @@ public class BwaOptions {
 
     private String tmpPath = "";
     private boolean useReducer = false;
-    private String correctUse =
-            "flink run -c com.github.flinkbwa.FlinkBWA FlinkBWA.jar"; // [FlinkBWA Options] Input.fastq [Input2.fastq] Output\n";
-    // -c option is for run a program with specific class as an entry point
-
+    private String correctUse = "flink run -c com.github.flinkbwa.FlinkBWA FlinkBWA.jar -m yarn-cluster";
+    // -c: run a program with specific class as an entry point
+    // -m: run a program on yarn cluster environment
 
     // Header to show when the program is not launched correctly
-    private String header = "\t<FASTQ file 1> [FASTQ file 2] <SAM file output>\n\nFlinkBWA performs genomic alignment using bwa in a Hadoop/YARN cluster\nAvailable FlinkBWA options are:\n";
-    //+ "\n\n----FLINK SHELL OPTIONS----\n\nTo set the Input.fastq - setInputPath(string)\n"
-    //+ "To set the Input2.fastq - setInputPath2(string)\n"
-    //+ "To set the Output - setOutputPath(string)\n"
-    //+ "The available FlinkBWA options are: \n\n";
+    private String header = "\t<FASTQ file 1> [FASTQ file 2] <SAM file output>\n\n" +
+            "FlinkBWA performs genomic alignment using bwa in a Hadoop/YARN cluster\n" +
+            "Available FlinkBWA options are:\n";
 
     private String headerAlt = "flink run -c com.github.flinkbwa.FlinkBWA FlinkBWA.jar\n" +
             "       [-a | -b | -m]  [-f | -k] [-h] [-i <Index prefix>]   [-n <Number of\n" +
@@ -46,7 +46,7 @@ public class BwaOptions {
             "       <FASTQ file 1> [FASTQ file 2] <SAM file output>";
 
     // Footer to show when the program is not launched correctly
-    private String footer = "\nPlease report issues at josemanuel.abuin@usc.es";
+    private String footer = "\nPlease report issues at josemanuel.abuin@usc.es or silvia.rodriguez.alcaraz@rai.usc.es";
     private String outputPath = "";
     private int partitionNumber = 0;
 
@@ -59,7 +59,6 @@ public class BwaOptions {
         Iterator availableGroups = this.options.getOptions().iterator();
         while (availableGroups.hasNext()) {
             Option newOption = ((Option) availableGroups.next());
-            //System.out.println("Adding option " + newOption.getLongOpt());
             if (optionsTable.containsKey(this.options.getOptionGroup(newOption).toString())) {
                 optionsTable.get(this.options.getOptionGroup(newOption).toString()).add(newOption);
             } else {
@@ -226,7 +225,6 @@ public class BwaOptions {
 
             // Help
             if (cmd.hasOption('h') || cmd.hasOption("help")) {
-                //formatter.printHelp(correctUse, header, options, footer, true);
                 this.printHelp();
                 System.exit(0);
             }
@@ -236,12 +234,9 @@ public class BwaOptions {
 
             if ((otherArguments.length != 2) && (otherArguments.length != 3)) {
                 LOG.error("[" + this.getClass().getName() + "] No input and output has been found. Aborting.");
-
                 for (String tmpString : otherArguments) {
                     LOG.error("[" + this.getClass().getName() + "] Other args:: " + tmpString);
                 }
-
-                //formatter.printHelp(correctUse, header, options, footer, true);
                 System.exit(1);
             } else if (otherArguments.length == 2) {
                 inputPath = otherArguments[0];

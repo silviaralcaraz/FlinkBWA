@@ -4,23 +4,23 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.apache.flink.api.java.hadoop.mapred.utils.HadoopUtils;
+import org.apache.flink.api.java.ExecutionEnvironment;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-
-import org.apache.flink.api.java.ExecutionEnvironment;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 /**
+ * Abstract class that represents an alignment.
+ *
  * Created by silvia on 10/04/19.
  */
-public class BwaAlignmentBase implements Serializable {
+public abstract class BwaAlignmentBase implements Serializable {
     protected static final Log LOG = LogFactory.getLog(BwaAlignmentBase.class);
 
     protected String appName = "";
@@ -39,8 +39,6 @@ public class BwaAlignmentBase implements Serializable {
         this.appId = environment.getId().toString();
         this.appName = "FlinkBWA";
         this.tmpDir = "/tmp";
-        //GlobalConfiguration.FLINK_CONF_FILENAME;
-        //this.tmpDir = context.getLocalProperty("spark.local.dir");
         this.bwaInterpreter = bwaInterpreter;
 
         //We set the tmp dir
@@ -86,7 +84,6 @@ public class BwaAlignmentBase implements Serializable {
         } else {
             this.bwaInterpreter.setOutputFile(this.tmpDir + "/" + outputSamFileName);
         }
-
 
         //We run BWA with the corresponding options set
         this.bwaInterpreter.run(0);

@@ -6,6 +6,8 @@ import org.apache.flink.util.Collector;
 
 /**
  * Class that implements functionality of grouping FASTQ without indexed PairDataset
+ *
+ * Created by silvia on 10/04/19.
  */
 public class FASTQRecordCreator implements GroupReduceFunction<Tuple2<Long, Tuple2<Long, String>>, Tuple2<Long, String>> {
 

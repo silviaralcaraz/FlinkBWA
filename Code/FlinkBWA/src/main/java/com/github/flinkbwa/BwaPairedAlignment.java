@@ -1,19 +1,3 @@
-/**
- * Copyright 2016 José Manuel Abuín Mosquera <josemanuel.abuin@usc.es>
- *
- * <p>This file is part of SparkBWA.
- *
- * <p>SparkBWA is free software: you can redistribute it and/or modify it under the terms of the GNU
- * General Public License as published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * <p>SparkBWA is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
- * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * General Public License for more details.
- *
- * <p>You should have received a copy of the GNU General Public License along with SparkBWA. If not,
- * see <http://www.gnu.org/licenses/>.
- */
 package com.github.flinkbwa;
 
 import org.apache.flink.api.common.functions.MapPartitionFunction;
@@ -23,16 +7,17 @@ import org.apache.flink.api.java.tuple.Tuple2;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Iterator;
 
 /**
- * Class to perform the alignment over a split from the Dataset of paired reads
+ * Class to perform the alignment over a split from the Dataset of paired reads.
+ *
+ * Created by silvia on 10/04/19.
  */
 public class BwaPairedAlignment extends BwaAlignmentBase implements MapPartitionFunction<Tuple2<String, String>, ArrayList<String>> {
 
     /**
      * Constructor
-     * @param environment The Spark context
+     * @param environment The Flink environment
      * @param bwaInterpreter The BWA interpreter object to use
      */
     public BwaPairedAlignment(ExecutionEnvironment environment, Bwa bwaInterpreter) {
@@ -82,21 +67,6 @@ public class BwaPairedAlignment extends BwaAlignmentBase implements MapPartition
 
             bw1 = new BufferedWriter(new OutputStreamWriter(fos1));
             bw2 = new BufferedWriter(new OutputStreamWriter(fos2));
-
-            /*
-            Iterator<Tuple2<String, String>> iterator = input.iterator();
-            Tuple2<String, String> newFastqRead;
-
-            while (iterator.hasNext()) {
-                newFastqRead = iterator.next();
-
-                bw1.write(newFastqRead.f0);
-                bw1.newLine();
-
-                bw2.write(newFastqRead.f1);
-                bw2.newLine();
-            }
-            */
 
             for(Tuple2<String, String> tuple: input){
                 bw1.write(tuple.f0);

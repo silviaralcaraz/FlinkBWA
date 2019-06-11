@@ -2,6 +2,11 @@ package com.github.flinkbwa;
 
 import org.apache.log4j.BasicConfigurator;
 
+/**
+ * Main class to run FlinkBWA.
+ *
+ * Created by silvia on 10/04/19.
+ */
 public class FlinkBWA {
     /**
      * @param args Arguments from command line

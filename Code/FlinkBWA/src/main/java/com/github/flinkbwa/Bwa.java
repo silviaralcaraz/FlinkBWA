@@ -7,14 +7,13 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
+ * Class that communicates with BWA.
+ *
  * Created by silvia on 10/04/19.
  */
 public class Bwa implements Serializable {
     private static final long serialVersionUID = 1L;
     private static final Log LOG = LogFactory.getLog(Bwa.class);
-
-    //Option to use the reduce phase
-    private boolean useReducer = false; // The option to use the reduce phase
 
     //Algorithms boolean variables
     private boolean memAlgorithm = false; // The option to use the MEM algorithm
@@ -34,7 +33,7 @@ public class Bwa implements Serializable {
     private String outputHdfsDir = "";
 
     //Reducer
-    private boolean isUseReducer = false;
+    private boolean isUseReducer = false; // The option to use the reduce phase
 
     // Tmp directory
     private String tmpPath = "";

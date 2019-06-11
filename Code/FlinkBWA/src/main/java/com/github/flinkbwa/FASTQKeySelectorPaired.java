@@ -4,7 +4,7 @@ import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
 
 /**
- * Method to get the key of a DataSet<Tuple2<Long, Tuple2<String, String>>
+ * Class to get the key of a DataSet<Tuple2<Long, Tuple2<String, String>>
  *
  * Created by silvia on 06/06/19.
  */

@@ -1,0 +1,8 @@
+# BWA
+- 32 threads
+- Paired Read
+- MEM algorithm
+Real time: 591.659 sec; CPU: 15955.258 se
+- Time: 9,8609833 minutes.
+
+# FlinkBWA

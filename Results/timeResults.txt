@@ -5,4 +5,14 @@
 Real time: 591.659 sec; CPU: 15955.258 se
 - Time: 9,8609833 minutes.
 
+- 32 threads
+- Single Reads
+- MEM
+Real time: 237.039 sec; CPU: 5103.706 sec
+- 3,95 min.
+
+- 16 threads. -> 4,96 min
+
+- Secuencial -> Real time: 3985.738 sec; CPU: 3985.540 sec -> 66.42897 min
+
 # FlinkBWA

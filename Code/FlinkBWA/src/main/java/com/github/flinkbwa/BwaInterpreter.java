@@ -145,7 +145,7 @@ public class BwaInterpreter {
 
         // Sort in memory with no partitioning
         if ((options.getPartitionNumber() == 0) && (options.isSortFastqReads())) {
-            readsDataSet = singleReadsKeyVal.sortPartition(new FASTQKeySelector(), Order.ASCENDING).map(new BwaMapFunctionValues());
+            readsDataSet = singleReadsKeyVal.sortPartition(new KeySelectorSingle(), Order.ASCENDING).map(new BwaMapFunctionValues());
             LOG.info("[" + this.getClass().getName() + "] :: Repartition with sort");
         }
 
@@ -202,18 +202,18 @@ public class BwaInterpreter {
 
         // Flink join operation to combine the datasets.
         DataSet<Tuple2<Long, Tuple2<String, String>>> pairedReadsDataSet = datasetTmp1.join(datasetTmp2).
-                where(new FASTQKeySelector()).equalTo(new FASTQKeySelector()).map(new FASTQPairMapOperator());
+                where(new KeySelectorSingle()).equalTo(new KeySelectorSingle()).map(new FASTQPairMapOperator());
 
         // Sort in memory with no partitioning
         if ((options.getPartitionNumber() == 0) && (options.isSortFastqReads())) {
-            readsDataSet = pairedReadsDataSet.sortPartition(new FASTQKeySelectorPaired(), Order.ASCENDING).map(new BwaMapFunctionPairValues());
+            readsDataSet = pairedReadsDataSet.sortPartition(new KeySelectorPaired(), Order.ASCENDING).map(new BwaMapFunctionPairValues());
             LOG.info("[" + this.getClass().getName() + "] :: Sorting in memory without partitioning");
         }
 
         // Sort in memory with partitioning
         else if ((options.getPartitionNumber() != 0) && (options.isSortFastqReads())) {
             readsDataSet = pairedReadsDataSet.rebalance().setParallelism(options.getPartitionNumber()).
-                    sortPartition(new FASTQKeySelectorPaired(), Order.ASCENDING).map(new BwaMapFunctionPairValues());
+                    sortPartition(new KeySelectorPaired(), Order.ASCENDING).map(new BwaMapFunctionPairValues());
             LOG.info("[" + this.getClass().getName() + "] :: Repartition with sort");
         }
 

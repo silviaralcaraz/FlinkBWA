@@ -11,10 +11,10 @@ import org.apache.flink.api.java.tuple.Tuple2;
 
 public class FASTQRecordGrouper implements MapFunction<Tuple2<Long, String>, Tuple2<Long, Tuple2<Long, String>>> {
 
-    public Tuple2<Long, Tuple2<Long, String>> map(Tuple2<Long, String> longStringTuple2) throws Exception {
+    public Tuple2<Long, Tuple2<Long, String>> map(Tuple2<Long, String> input) throws Exception {
         // We get string input and line number
-        String line = longStringTuple2.f1;
-        Long fastqLineNum = longStringTuple2.f0;
+        String line = input.f1;
+        Long fastqLineNum = input.f0;
 
         // We obtain the record number from the line number
         Long recordNum = (long) Math.floor(fastqLineNum / 4);

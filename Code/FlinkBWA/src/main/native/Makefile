@@ -1,10 +1,10 @@
 include ./Makefile.common
 
-.PHONY: sparkbwa libbwa.so bwa clean	
+.PHONY: flinkbwa libbwa.so bwa clean
 
 all: libbwa.so
 	@echo "================================================================================"
-	@echo "SparkBWA library has been built."
+	@echo "FlinkBWA library has been built."
 	@echo "Location    = $(LOCATION)/$(BUILD_DIR)/"
 	@echo "JAVA_HOME   = $(JAVA_HOME)"
 	@echo "================================================================================"
@@ -14,11 +14,11 @@ bwa:
 	if [ ! -d "$(BUILD_DIR)" ]; then mkdir $(BUILD_DIR); fi
 	cp $(BWA_DIR)/*.o $(BUILD_DIR)
 
-sparkbwa:
+flinkbwa:
 	if [ ! -d "$(BUILD_DIR)" ]; then mkdir $(BUILD_DIR); fi
-	$(CC) $(SPARKBWA_FLAGS) bwa_jni.c -o $(BUILD_DIR)/bwa_jni.o $(LIBBWA_LIBS)
+	$(CC) $(FLINKBWA_FLAGS) bwa_jni.c -o $(BUILD_DIR)/bwa_jni.o $(LIBBWA_LIBS)
 
-libbwa.so: sparkbwa bwa
+libbwa.so: flinkbwa bwa
 	$(CC) $(LIBBWA_FLAGS) $(BUILD_DIR)/libbwa.so $(BUILD_DIR)/*.o $(LIBBWA_LIBS)
 	#cp $(BUILD_DIR)/libbwa.so ../resources/
 	cp $(BUILD_DIR)/libbwa.so ../../../target/classes/

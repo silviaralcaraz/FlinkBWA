@@ -24,34 +24,19 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/com/github/flinkbwa/BwaInterpreter.java">
+        <entry file="file://$PROJECT_DIR$/src/main/native/Makefile.common">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="379">
-              <caret line="377" column="26" selection-start-line="377" selection-start-column="8" selection-end-line="377" selection-end-column="26" />
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
+            <state relative-caret-position="300">
+              <caret line="28" column="14" selection-start-line="28" selection-start-column="14" selection-end-line="28" selection-end-column="14" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/main/java/com/github/flinkbwa/FlinkBWA.java">
+        <entry file="file://$PROJECT_DIR$/src/main/native/Makefile">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="306">
-              <caret line="18" column="41" selection-start-line="18" selection-start-column="41" selection-end-line="18" selection-end-column="41" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/src/main/java/com/github/flinkbwa/BwaAlignmentBase.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="277">
-              <caret line="158" column="18" selection-start-line="158" selection-start-column="18" selection-end-line="158" selection-end-column="18" />
-              <folding>
-                <element signature="imports" expanded="true" />
-              </folding>
+            <state relative-caret-position="238">
+              <caret line="14" column="34" lean-forward="true" selection-start-line="14" selection-start-column="34" selection-end-line="14" selection-end-column="34" />
             </state>
           </provider>
         </entry>
@@ -67,9 +52,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>sortFastqReads</find>
-      <find>-n</find>
-      <find>partitions</find>
       <find>getpartitionNumber</find>
       <find>fixme</find>
       <find>MapPaired</find>
@@ -89,7 +71,6 @@
       <find>testing</find>
       <find>isUseReducer</find>
       <find>Spark</find>
-      <find>spark</find>
       <find>executionConf</find>
       <find>mapfunctionpai</find>
       <find>copyResults</find>
@@ -97,6 +78,10 @@
       <find>Fastqrecordcre</find>
       <find>run</find>
       <find>createOutputFolder</find>
+      <find>SPARK</find>
+      <find>sparkbwa</find>
+      <find>SPARKBWA_FLAGS</find>
+      <find>spark</find>
     </findStrings>
     <dirStrings>
       <dir>$PROJECT_DIR$</dir>
@@ -119,7 +104,6 @@
         <option value="$PROJECT_DIR$/src/main/java/com/github/flinkbwa/FASTQPair.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/github/flinkbwa/utils/NativeUtils.java" />
         <option value="$PROJECT_DIR$/pom.xml" />
-        <option value="$PROJECT_DIR$/src/main/native/Makefile.common" />
         <option value="$PROJECT_DIR$/src/main/native/bwa-master/Makefile" />
         <option value="$PROJECT_DIR$/src/main/java/com/github/flinkbwa/BwaMapFunctionValues.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/github/flinkbwa/BwaMapFunctionPairValues.java" />
@@ -138,6 +122,9 @@
         <option value="$PROJECT_DIR$/src/main/java/com/github/flinkbwa/BwaPairedAlignment.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/github/flinkbwa/FASTQRecordGrouper.java" />
         <option value="$PROJECT_DIR$/src/main/java/com/github/flinkbwa/KeySelectorSingle.java" />
+        <option value="$PROJECT_DIR$/src/main/native/Makefile.common" />
+        <option value="$PROJECT_DIR$/src/main/native/Makefile" />
+        <option value="$PROJECT_DIR$/src/main/native/bwa_jni.c" />
       </list>
     </option>
   </component>
@@ -558,16 +545,19 @@
       <workItem from="1560156385068" duration="8450000" />
       <workItem from="1560699287065" duration="7220000" />
       <workItem from="1560761885065" duration="6186000" />
+      <workItem from="1561323055087" duration="589000" />
+      <workItem from="1561456029521" duration="2231000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="179992000" />
+    <option name="totallyTimeSpent" value="182812000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="744" extended-state="6" />
+    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.18683812" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.19288956" />
       <window_info id="Structure" order="1" weight="0.25" />
       <window_info id="Nl-Palette" order="2" />
       <window_info id="Designer" order="3" />
@@ -576,7 +566,7 @@
       <window_info id="Favorites" order="6" side_tool="true" />
       <window_info id="Capture Tool" order="7" />
       <window_info anchor="bottom" id="Message" order="0" />
-      <window_info anchor="bottom" id="Find" order="1" visible="true" weight="0.22585924" />
+      <window_info active="true" anchor="bottom" id="Find" order="1" visible="true" weight="0.16693944" />
       <window_info anchor="bottom" id="Run" order="2" weight="0.29296234" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
@@ -652,11 +642,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/native/bwa_jni.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-975" />
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/native/bwa-master/ksw.c">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="195">
@@ -668,20 +653,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="134">
           <caret line="278" column="51" selection-start-line="278" selection-start-column="51" selection-end-line="278" selection-end-column="51" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/native/Makefile.common">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="295">
-          <caret line="30" selection-start-line="30" selection-end-line="30" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/native/Makefile">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="176">
-          <caret line="20" column="11" selection-start-line="20" selection-start-column="11" selection-end-line="20" selection-end-column="11" />
         </state>
       </provider>
     </entry>
@@ -814,18 +785,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/github/flinkbwa/BwaAlignmentBase.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="277">
+        <state relative-caret-position="2465">
           <caret line="158" column="18" selection-start-line="158" selection-start-column="18" selection-end-line="158" selection-end-column="18" />
-          <folding>
-            <element signature="imports" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/java/com/github/flinkbwa/BwaInterpreter.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="379">
-          <caret line="377" column="26" selection-start-line="377" selection-start-column="8" selection-end-line="377" selection-end-column="26" />
           <folding>
             <element signature="imports" expanded="true" />
           </folding>
@@ -834,8 +795,35 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/java/com/github/flinkbwa/FlinkBWA.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="18" column="41" selection-start-line="18" selection-start-column="41" selection-end-line="18" selection-end-column="41" />
+        <state relative-caret-position="238">
+          <caret line="14" column="30" lean-forward="true" selection-start-line="14" selection-start-column="30" selection-end-line="14" selection-end-column="30" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/java/com/github/flinkbwa/BwaInterpreter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="529">
+          <caret line="377" column="26" selection-start-line="377" selection-start-column="8" selection-end-line="377" selection-end-column="26" />
+          <folding>
+            <element signature="imports" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/native/Makefile.common">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="300">
+          <caret line="28" column="14" selection-start-line="28" selection-start-column="14" selection-end-line="28" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/native/bwa_jni.c">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/native/Makefile">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="238">
+          <caret line="14" column="34" lean-forward="true" selection-start-line="14" selection-start-column="34" selection-end-line="14" selection-end-column="34" />
         </state>
       </provider>
     </entry>

@@ -12,9 +12,9 @@ BUILD_DIR = build
 # Hadoop variables ########
 #LIBS_DIR = ./libs
 
-# Spark variables
-#SPARK_URL = http://ftp.cixug.es/apache/spark/spark-1.6.1/spark-1.6.1-bin-hadoop2.6.tgz
-#SPARK_PACKAGE = spark-1.6.1-bin-hadoop2.6.tgz
+# Flink variables
+#FLINK_URL = http://ftp.cixug.es/apache/flink/flink-1.7.2/flink-1.7.2-bin-hadoop27-scala_2.11.tgz
+#FLINK_PACKAGE = flink-1.7.2-bin-hadoop27-scala_2.11.tgz
 
 # JAVA variables #######
 ifndef JAVA_HOME
@@ -24,10 +24,8 @@ else
 JAVA_HOME_INCLUDES = -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/linux
 endif
 
-#JAR_FILES = $(LIBS_DIR)/commons-cli-1.2.jar:$(LIBS_DIR)/spark-assembly-1.6.1-hadoop2.6.0.jar
-
 # Bwa variables ########
 BWA_DIR = ./bwa-master
-SPARKBWA_FLAGS = -c -g -Wall -Wno-unused-function -O2 -fPIC -DHAVE_PTHREAD -DUSE_MALLOC_WRAPPERS $(JAVA_HOME_INCLUDES)
+FLINKBWA_FLAGS = -c -g -Wall -Wno-unused-function -O2 -fPIC -DHAVE_PTHREAD -DUSE_MALLOC_WRAPPERS $(JAVA_HOME_INCLUDES)
 LIBBWA_FLAGS = -shared -o
 LIBBWA_LIBS = -lrt -lz

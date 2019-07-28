@@ -1,6 +1,6 @@
 # FlinkBWA
 
-Repositorio del Trabajo de Fin de Grado (TFG): FlinkBWA, uso de tecnologías Big Data para el alineamiento de secuencias genéticas
+Repositorio del Trabajo de Fin de Grado (TFG): FlinkBWA, uso de tecnologías Big Data para el alineamiento de secuencias genéticas.
 
 --
 
@@ -18,8 +18,8 @@ All of them work with single-reads and paired-end reads.
 
 The project keeps a standard Maven structure. The source code is in the src/main folder. Inside it, we can find two subfolders:
 
-java - Here is where the Java code is stored.
-native - Here the BWA native code (C) and the glue logic for JNI is stored.
++ java: here is where the Java code is stored.
++ native: here the BWA native code (C) and the glue logic for JNI is stored.
 
 ## Requirements
 
@@ -32,23 +32,22 @@ Requirements to build FlinkBWA are the same than the ones to build BWA, with thi
 ## Building
 
 ```
-git clone https://github.com/citiususc/SparkBWA.git
-cd SparkBWA
+git clone https://github.com/silviaralcaraz/FlinkBWA.git
+cd FlinkBWA
 mvn clean package
 ```
 
-This will create the target folder, which will contain the jar file needed to run SparkBWA:
+This will create the target folder, which will contain the jar file needed to run FlinkBWA:
 - **FlinkBWA-1.0-SNAPSHOT.jar**: jar file to launch with Flink.
 
 ## Running FlinkBWA
 
 Here it is an example of how to execute FlinkBWA using the BWA-MEM algorithm with single-end reads. The example assumes that our index is stored in all the cluster nodes at /Data/HumanBase/. The index can be obtained from BWA using "bwa index".
 
-1. First, we get the input FASTQ reads from the 1000 Genomes Project ftp:
+1. First, we get the input FASTQ read from the 1000 Genomes Project ftp:
 
 ```
 wget ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/data/NA12750/sequence_read/ERR000589_1.filt.fastq.gz
-wget ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/data/NA12750/sequence_read/ERR000589_2.filt.fastq.gz
 ```
 
 2. Next, the downloaded file should be uncompressed:

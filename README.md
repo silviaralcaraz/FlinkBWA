@@ -86,5 +86,5 @@ In case of not using a reducer, the output will be split into several pieces (fi
 If you want to check all the available options, execute the command:
 
 ```
- ./bin/flink run -c com.github.flinkbwa.FlinkBWA -m yarn - cluster FlinkBWA-1.0-SNAPSHOT.jar -h
+ ./bin/flink run -c com.github.flinkbwa.FlinkBWA -m yarn-cluster FlinkBWA-1.0-SNAPSHOT.jar -h
 ```
